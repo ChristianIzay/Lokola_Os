@@ -1,6 +1,7 @@
 package com.muana.lokola.ui.launcher
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +35,7 @@ import com.muana.lokola.ui.components.DataSaverWidget
 import com.muana.lokola.ui.components.LanguageFAB
 import com.muana.lokola.ui.theme.*
 import com.muana.lokola.util.AppLauncher
+import com.muana.lokola.util.WallpaperManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -53,16 +56,16 @@ data class QuickAction(
 
 @Composable
 fun LauncherScreen(
+    wallpaperManager: WallpaperManager,
+    dataSaverEnabled: Boolean,
+    onDataSaverToggle: (Boolean) -> Unit,
     onMayebiClick: () -> Unit,
     onSettingsClick: () -> Unit,
     currentLanguage: String = "fr",
     onLanguageChange: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    var dataSaverEnabled by remember { mutableStateOf(true) }
-    
-    // Load selected wallpaper
-    val wallpaperManager = remember { com.muana.lokola.util.WallpaperManager(context) }
+
     val selectedWallpaperId by wallpaperManager.selectedWallpaperId.collectAsState(initial = 0)
     
     val currentDate = remember { LocalDate.now() }
@@ -84,7 +87,7 @@ fun LauncherScreen(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    contentScale = ContentScale.Crop
                 )
             }
         } else {
@@ -104,7 +107,7 @@ fun LauncherScreen(
             // Data Saver Widget
             DataSaverWidget(
                 isEnabled = dataSaverEnabled,
-                onToggle = { dataSaverEnabled = it }
+                onToggle = onDataSaverToggle
             )
             
             Spacer(modifier = Modifier.height(12.dp))
@@ -136,6 +139,13 @@ fun LauncherScreen(
                                 "messages" -> AppLauncher.launchMessages(context)
                                 "browser" -> AppLauncher.launchBrowser(context)
                                 "camera" -> AppLauncher.launchCamera(context)
+                                "gallery" -> AppLauncher.launchGallery(context)
+                                "music" -> AppLauncher.launchMusic(context)
+                                "videos" -> AppLauncher.launchVideos(context)
+                                "files" -> AppLauncher.launchFiles(context)
+                                "calculator" -> AppLauncher.launchCalculator(context)
+                                "calendar" -> AppLauncher.launchCalendar(context)
+                                "clock" -> AppLauncher.launchClock(context)
                             }
                         }
                     )
@@ -206,7 +216,7 @@ fun HeaderSection(formattedDate: String) {
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "Bienvenue sur Lokola OS",
+                    text = "Boyeyi Bolamu na LokolaOS",
                     fontSize = 14.sp,
                     color = Color(0xFFF7D618),
                     fontWeight = FontWeight.Medium
@@ -376,13 +386,13 @@ fun getCongoAppList(): List<AppItem> {
         AppItem(2, "Téléphone", Icons.Default.Phone, Color(0xFF4CAF50), "phone"),
         AppItem(3, "Messages", Icons.Default.Message, Color(0xFF2196F3), "messages"),
         AppItem(4, "Internet", Icons.Default.Public, Color(0xFF003F87), "browser"),
-        AppItem(5, "Photos", Icons.Default.Image, Color(0xFFFF6F00), "camera"),
-        AppItem(6, "Musique", Icons.Default.MusicNote, Color(0xFFE91E63), null),
-        AppItem(7, "Vidéos", Icons.Default.VideoLibrary, Color(0xFF9C27B0), null),
-        AppItem(8, "Fichiers", Icons.Default.Folder, Color(0xFFFF8F00), null),
-        AppItem(9, "Calcul", Icons.Default.Calculate, Color(0xFF00897B), null),
-        AppItem(10, "Calendrier", Icons.Default.CalendarToday, Color(0xFF5E35B1), null),
-        AppItem(11, "Horloge", Icons.Default.AccessTime, Color(0xFF6D4C41), null),
+        AppItem(5, "Photos", Icons.Default.Image, Color(0xFFFF6F00), "gallery"),
+        AppItem(6, "Musique", Icons.Default.MusicNote, Color(0xFFE91E63), "music"),
+        AppItem(7, "Vidéos", Icons.Default.VideoLibrary, Color(0xFF9C27B0), "videos"),
+        AppItem(8, "Fichiers", Icons.Default.Folder, Color(0xFFFF8F00), "files"),
+        AppItem(9, "Calcul", Icons.Default.Calculate, Color(0xFF00897B), "calculator"),
+        AppItem(10, "Calendrier", Icons.Default.CalendarToday, Color(0xFF5E35B1), "calendar"),
+        AppItem(11, "Horloge", Icons.Default.AccessTime, Color(0xFF6D4C41), "clock"),
         AppItem(12, "Paramètres", Icons.Default.Settings, Color(0xFF546E7A), "settings")
     )
 }

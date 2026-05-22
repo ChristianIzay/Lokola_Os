@@ -1,7 +1,7 @@
 package com.muana.lokola.ui.wallpaper
 
-import android.content.Context
 import android.graphics.BitmapFactory
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,18 +9,24 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.muana.lokola.util.WallpaperManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +34,7 @@ fun WallpaperPickerScreen(
     wallpaperManager: WallpaperManager,
     onNavigateBack: () -> Unit
 ) {
-    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val selectedId by wallpaperManager.selectedWallpaperId.collectAsState(initial = 0)
     val wallpapers = wallpaperManager.getAvailableWallpapers()
 
@@ -38,7 +44,7 @@ fun WallpaperPickerScreen(
                 title = { Text("Choisir un fond d'écran") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -56,7 +62,9 @@ fun WallpaperPickerScreen(
                     resId = resId,
                     isSelected = (index + 1) == selectedId, // Mapping list index to ID (1-based)
                     onClick = {
-                        wallpaperManager.setWallpaper(index + 1)
+                        scope.launch {
+                            wallpaperManager.setWallpaper(index + 1)
+                        }
                     }
                 )
             }
@@ -92,12 +100,12 @@ fun WallpaperItem(
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                contentScale = ContentScale.Crop
             )
             
             if (isSelected) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Check,
+                    imageVector = Icons.Default.Check,
                     contentDescription = "Selected",
                     modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
                     tint = MaterialTheme.colorScheme.primary

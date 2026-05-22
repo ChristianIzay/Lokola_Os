@@ -8,5 +8,6 @@ sealed class Screen(val route: String) {
         fun createRoute(lessonId: Int) = "lesson_detail/$lessonId"
     }
     object Settings : Screen("settings")
+    object SetDefaultLauncher : Screen("set_default_launcher")
     object WallpaperPicker : Screen("wallpaper_picker")
 }
