@@ -2,6 +2,7 @@ package com.muana.lokola.ui.launcher
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +37,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import com.muana.lokola.ui.components.DataSaverWidget
 import com.muana.lokola.ui.components.LanguageFAB
+import com.muana.lokola.ui.components.RumbaWidget
+import com.muana.lokola.ui.components.CongoNewsWidget
+import com.muana.lokola.ui.components.CulturalCalendarWidget
+import com.muana.lokola.ui.theme.drawCulturalPattern
+import com.muana.lokola.ui.icons.CongoIcons
+import com.muana.lokola.ui.icons.Drum
+import com.muana.lokola.ui.icons.TalkingDrum
+import com.muana.lokola.ui.icons.AfricaGlobe
+import com.muana.lokola.ui.icons.TraditionalMask
 import com.muana.lokola.ui.theme.*
 import com.muana.lokola.util.AppLauncher
 import com.muana.lokola.util.ThemeManager
@@ -82,7 +92,7 @@ fun LauncherScreen(
     }
     
     Box(modifier = Modifier.fillMaxSize()) {
-        // Background Image
+        // Background avec pattern culturel ou image
         if (selectedWallpaperId > 0) {
             val wallpapers = wallpaperManager.getAvailableWallpapers()
             val resId = wallpapers.getOrNull(selectedWallpaperId - 1)
@@ -99,11 +109,13 @@ fun LauncherScreen(
                 )
             }
         } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(LauncherBackground)
-            )
+            // Arrière-plan avec pattern culturel
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                // Fond de base
+                drawRect(color = themeColors.background)
+                // Pattern culturel par-dessus
+                drawCulturalPattern(size, currentTheme, themeColors)
+            }
         }
 
         Column(
@@ -112,6 +124,11 @@ fun LauncherScreen(
         ) {
             // Header avec date et salutation
             HeaderSection(formattedDate = formattedDate, themeColors = themeColors)
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Widgets culturels (optionnels - peuvent être activés/désactivés)
+            CulturalWidgetsSection(themeColors = themeColors)
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -358,16 +375,20 @@ fun CongoDockBar(context: Context, themeColors: ThemeColors) {
                 .padding(vertical = 12.dp, horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            DockItem(Icons.Default.Phone, "Téléphone", themeColors.primary) {
+            // Téléphone -> Tambour (Drum)
+            DockItem(CongoIcons.Drum, "Téléphone", themeColors.primary) {
                 AppLauncher.launchDialer(context)
             }
-            DockItem(Icons.Default.Message, "Messages", themeColors.accent) {
+            // Messages -> Tambour Parlant (TalkingDrum)
+            DockItem(CongoIcons.TalkingDrum, "Messages", themeColors.accent) {
                 AppLauncher.launchMessages(context)
             }
-            DockItem(Icons.Default.Public, "Internet", themeColors.primaryVariant) {
+            // Internet -> Globe Africain (AfricaGlobe)
+            DockItem(CongoIcons.AfricaGlobe, "Internet", themeColors.primaryVariant) {
                 AppLauncher.launchBrowser(context)
             }
-            DockItem(Icons.Default.PhotoCamera, "Photo", themeColors.secondary) {
+            // Photo -> Masque Traditionnel (TraditionalMask)
+            DockItem(CongoIcons.TraditionalMask, "Photo", themeColors.secondary) {
                 AppLauncher.launchCamera(context)
             }
         }
@@ -481,5 +502,24 @@ fun SearchBarSection(onSearch: (String) -> Unit) {
             keyboardOptions = KeyboardOptions.Default,
             singleLine = true
         )
+    }
+}
+
+@Composable
+fun CulturalWidgetsSection(themeColors: ThemeColors) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Widget Rumba UNESCO
+        RumbaWidget(themeColors = themeColors)
+        
+        // Widget Actualités RDC
+        CongoNewsWidget(themeColors = themeColors)
+        
+        // Widget Calendrier Culturel
+        CulturalCalendarWidget(themeColors = themeColors)
     }
 }
