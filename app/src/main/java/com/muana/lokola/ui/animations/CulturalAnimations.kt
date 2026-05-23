@@ -1,6 +1,7 @@
 package com.muana.lokola.ui.animations
 
 import androidx.compose.animation.core.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -32,6 +33,7 @@ fun ndomboloBounce(): FiniteAnimationSpec<Float> = spring(
 /**
  * Modifier pour animation d'entrée fluide (rumba style)
  */
+@Composable
 fun Modifier.rumbaEnterAnimation(
     visible: Boolean,
     initialScale: Float = 0.8f,
@@ -191,6 +193,7 @@ fun Modifier.riverShimmer(
 /**
  * Animation de croissance organique (nature/forêt)
  */
+@Composable
 fun Modifier.forestGrow(visible: Boolean): Modifier {
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
