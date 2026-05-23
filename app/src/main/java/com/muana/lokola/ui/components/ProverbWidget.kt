@@ -96,7 +96,7 @@ fun ProverbWidget(
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            themeColors.secondary.copy(alpha = 0.15f),
+                            themeColors.secondary.copy(alpha = if (themeColors.isDarkTheme) 0.1f else 0.15f),
                             themeColors.surface
                         )
                     )

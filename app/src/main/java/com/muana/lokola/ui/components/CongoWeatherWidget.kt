@@ -49,19 +49,19 @@ fun CongoWeatherWidget(
                     Brush.verticalGradient(
                         colors = when (weatherData.condition) {
                             "Ensoleillé" -> listOf(
-                                themeColors.secondary.copy(alpha = 0.4f),
+                                themeColors.secondary.copy(alpha = if (themeColors.isDarkTheme) 0.25f else 0.4f),
                                 themeColors.surface
                             )
                             "Nuageux" -> listOf(
-                                themeColors.textSecondary.copy(alpha = 0.3f),
+                                themeColors.textSecondary.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f),
                                 themeColors.surface
                             )
                             "Pluie" -> listOf(
-                                themeColors.primary.copy(alpha = 0.3f),
+                                themeColors.primary.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f),
                                 themeColors.surface
                             )
                             else -> listOf(
-                                themeColors.gradientStart.copy(alpha = 0.3f),
+                                themeColors.gradientStart.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f),
                                 themeColors.surface
                             )
                         }

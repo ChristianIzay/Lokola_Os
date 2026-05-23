@@ -92,7 +92,7 @@ fun CulturalCalendarWidget(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            themeColors.gradientEnd.copy(alpha = 0.2f),
+                            themeColors.gradientEnd.copy(alpha = if (themeColors.isDarkTheme) 0.1f else 0.2f),
                             themeColors.surface
                         )
                     )

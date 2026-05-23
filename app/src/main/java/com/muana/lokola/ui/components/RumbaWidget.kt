@@ -64,8 +64,8 @@ fun RumbaWidget(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            themeColors.gradientStart.copy(alpha = 0.3f),
-                            themeColors.gradientEnd.copy(alpha = 0.3f)
+                            themeColors.gradientStart.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f),
+                            themeColors.gradientEnd.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f)
                         )
                     )
                 )

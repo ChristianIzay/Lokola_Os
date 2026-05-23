@@ -87,7 +87,7 @@ fun CongoNewsWidget(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            themeColors.gradientStart.copy(alpha = 0.15f),
+                            themeColors.gradientStart.copy(alpha = if (themeColors.isDarkTheme) 0.1f else 0.15f),
                             themeColors.surface
                         )
                     )
