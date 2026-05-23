@@ -27,24 +27,24 @@ fun LokolaNavHost(
     val isOnboardingCompleted by viewModel.isOnboardingCompleted.collectAsState()
     val shouldShowDefaultLauncherPrompt by viewModel.shouldShowDefaultLauncherPrompt.collectAsState()
 
-    // Le Splash Screen s'affiche uniquement au démarrage initial de l'application
-    // Déterminer la destination de départ après le splash
-    val startDestination = when {
-        !isOnboardingCompleted -> Screen.Onboarding.route
-        shouldShowDefaultLauncherPrompt -> Screen.SetDefaultLauncher.route
-        else -> Screen.Launcher.route
-    }
-
+    // Le Splash Screen s'affiche uniquement au démarrage initial
+    // Il utilise popUpTo pour empêcher le retour arrière
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
     ) {
-        // Splash Screen - S'affiche uniquement au démarrage
+        // Splash Screen - S'affiche uniquement au démarrage de l'app
         composable(Screen.Splash.route) {
             SplashScreen(
                 onFinish = {
-                    // Naviguer vers la destination appropriée après le splash
-                    navController.navigate(startDestination) {
+                    // Déterminer la destination après le splash
+                    val destination = when {
+                        !isOnboardingCompleted -> Screen.Onboarding.route
+                        shouldShowDefaultLauncherPrompt -> Screen.SetDefaultLauncher.route
+                        else -> Screen.Launcher.route
+                    }
+                    // Navigation avec popUpTo pour empêcher le retour au splash
+                    navController.navigate(destination) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
