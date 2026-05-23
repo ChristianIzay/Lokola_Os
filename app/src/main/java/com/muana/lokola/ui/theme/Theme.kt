@@ -8,23 +8,38 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.muana.lokola.util.ThemeMode
+import com.muana.lokola.util.ThemeModeManager
 
 @Composable
 fun LokolaOSTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeModeManager: ThemeModeManager,
     dynamicColor: Boolean = false, // Disable dynamic colors for cultural theme consistency
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+    
+    // Récupérer le mode de thème choisi par l'utilisateur
+    val themeMode by themeModeManager.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
+    
+    // Déterminer si on utilise le mode sombre
+    val isDarkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+    
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (isDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme  // Utilise le schéma sombre complet défini dans Color.kt
+        isDarkTheme -> DarkColorScheme  // Utilise le schéma sombre complet défini dans Color.kt
         else -> LightColorScheme
     }
 
@@ -34,7 +49,7 @@ fun LokolaOSTheme(
             val window = (view.context as Activity).window
             // Mode sombre : status bar transparente avec icônes claires
             // Mode clair : status bar avec couleur primaire et icônes sombres
-            if (darkTheme) {
+            if (isDarkTheme) {
                 window.statusBarColor = android.graphics.Color.TRANSPARENT
                 WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
             } else {

@@ -112,6 +112,15 @@ fun SettingsScreen(
                     onClick = onThemeClick
                 )
             }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Theme Mode Selector
+            SettingsSection(
+                title = "Apparence"
+            ) {
+                ThemeModeSelector(themeModeManager = viewModel.themeModeManager)
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

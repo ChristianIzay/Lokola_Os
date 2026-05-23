@@ -9,6 +9,7 @@ import com.muana.lokola.util.LanguageManager
 import com.muana.lokola.util.LauncherHelper
 import com.muana.lokola.util.OnboardingManager
 import com.muana.lokola.util.ThemeManager
+import com.muana.lokola.util.ThemeModeManager
 import com.muana.lokola.util.WallpaperManager
 import com.muana.lokola.util.WidgetPreferencesManager
 import dagger.Module
@@ -71,5 +72,11 @@ object AppModule {
     @Singleton
     fun provideWidgetPreferencesManager(@ApplicationContext context: Context): WidgetPreferencesManager {
         return WidgetPreferencesManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideThemeModeManager(@ApplicationContext context: Context): ThemeModeManager {
+        return ThemeModeManager(context)
     }
 }

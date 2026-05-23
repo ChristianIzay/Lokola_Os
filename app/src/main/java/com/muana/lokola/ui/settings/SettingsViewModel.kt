@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.muana.lokola.util.DataSaverManager
 import com.muana.lokola.util.LanguageManager
+import com.muana.lokola.util.ThemeModeManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val dataSaverManager: DataSaverManager,
-    private val languageManager: LanguageManager
+    private val languageManager: LanguageManager,
+    val themeModeManager: ThemeModeManager
 ) : ViewModel() {
 
     val dataSaverEnabled: StateFlow<Boolean> = dataSaverManager.isDataSaverEnabled
