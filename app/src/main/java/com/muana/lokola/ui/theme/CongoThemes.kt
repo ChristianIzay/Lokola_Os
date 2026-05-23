@@ -15,6 +15,7 @@ enum class CongoTheme(val displayName: String, val icon: String) {
 
 /**
  * Configuration des couleurs pour chaque thème
+ * Supporte les modes clair et sombre
  */
 data class ThemeColors(
     val primary: Color,
@@ -27,7 +28,8 @@ data class ThemeColors(
     val textSecondary: Color,
     val gradientStart: Color,
     val gradientEnd: Color,
-    val dockBackground: Color
+    val dockBackground: Color,
+    val isDarkTheme: Boolean = false  // Indicateur pour adaptations supplémentaires
 )
 
 /**
@@ -100,12 +102,85 @@ val ForetThemeColors = ThemeColors(
 
 /**
  * Récupère les couleurs du thème sélectionné
+ * Adapte automatiquement selon le mode sombre/clair
  */
-fun getThemeColors(theme: CongoTheme): ThemeColors {
-    return when (theme) {
-        CongoTheme.RUMBA -> RumbaThemeColors
-        CongoTheme.SAVANE -> SavaneThemeColors
-        CongoTheme.FLEUVE -> FleuveThemeColors
-        CongoTheme.FORET -> ForetThemeColors
+@Composable
+fun getThemeColors(theme: CongoTheme, isDarkMode: Boolean = androidx.compose.foundation.isSystemInDarkTheme()): ThemeColors {
+    val baseColors = when (theme) {
+        CongoTheme.RUMBA -> if (isDarkMode) RumbaThemeColorsDark else RumbaThemeColors
+        CongoTheme.SAVANE -> if (isDarkMode) SavaneThemeColorsDark else SavaneThemeColors
+        CongoTheme.FLEUVE -> if (isDarkMode) FleuveThemeColorsDark else FleuveThemeColors
+        CongoTheme.FORET -> if (isDarkMode) ForetThemeColorsDark else ForetThemeColors
     }
+    
+    return baseColors.copy(isDarkTheme = isDarkMode)
 }
+
+/**
+ * Versions sombres des thèmes culturels
+ * Optimisées pour la lisibilité et le confort visuel en mode sombre
+ */
+
+// Thème Rumba - Mode Sombre
+val RumbaThemeColorsDark = ThemeColors(
+    primary = Color(0xFFFF6B9D),          // Rose plus lumineux
+    primaryVariant = Color(0xFFE91E63),
+    secondary = Color(0xFFFFDB74),        // Or plus brillant
+    background = Color(0xFF0D0D1A),       // Nuit profonde
+    surface = Color(0xFF1A1A2E),
+    accent = Color(0xFFFF7043),           // Orange vif
+    textPrimary = Color(0xFFE0E0E0),      // Texte clair
+    textSecondary = Color(0xFFB0BEC5),
+    gradientStart = Color(0xFFFF6B9D),
+    gradientEnd = Color(0xFFFF7043),
+    dockBackground = Color(0xFF0F3460),
+    isDarkTheme = true
+)
+
+// Thème Savane - Mode Sombre
+val SavaneThemeColorsDark = ThemeColors(
+    primary = Color(0xFFFFB74D),          // Or adaptatif
+    primaryVariant = Color(0xFFFF8F00),
+    secondary = Color(0xFF81C784),        // Vert plus doux
+    background = Color(0xFF1A1410),       // Terre sombre
+    surface = Color(0xFF2C2416),
+    accent = Color(0xFFA1887F),           // Ocre clair
+    textPrimary = Color(0xFFEFEBE9),      // Texte très clair
+    textSecondary = Color(0xFFBCAAA4),
+    gradientStart = Color(0xFFFFB74D),
+    gradientEnd = Color(0xFFFF8F00),
+    dockBackground = Color(0xFF3E2723),
+    isDarkTheme = true
+)
+
+// Thème Fleuve - Mode Sombre
+val FleuveThemeColorsDark = ThemeColors(
+    primary = Color(0xFF4FC3F7),          // Bleu ciel lumineux
+    primaryVariant = Color(0xFF0288D1),
+    secondary = Color(0xFF4DD0E1),        // Cyan brillant
+    background = Color(0xFF0D1B2A),       // Eau profonde
+    surface = Color(0xFF1B2838),
+    accent = Color(0xFF29B6F6),           // Bleu clair
+    textPrimary = Color(0xFFE1F5FE),      // Texte bleu très clair
+    textSecondary = Color(0xFFB3E5FC),
+    gradientStart = Color(0xFF4FC3F7),
+    gradientEnd = Color(0xFF4DD0E1),
+    dockBackground = Color(0xFF01579B),
+    isDarkTheme = true
+)
+
+// Thème Forêt - Mode Sombre
+val ForetThemeColorsDark = ThemeColors(
+    primary = Color(0xFF66BB6A),          // Vert lumineux
+    primaryVariant = Color(0xFF2E7D32),
+    secondary = Color(0xFFAED581),        // Vert clair
+    background = Color(0xFF0D1F0F),       // Forêt nocturne
+    surface = Color(0xFF1B2E1D),
+    accent = Color(0xFF81C784),           // Vert mousse clair
+    textPrimary = Color(0xFFE8F5E9),      // Texte vert très clair
+    textSecondary = Color(0xFFC8E6C9),
+    gradientStart = Color(0xFF66BB6A),
+    gradientEnd = Color(0xFF81C784),
+    dockBackground = Color(0xFF1B5E20),
+    isDarkTheme = true
+)
