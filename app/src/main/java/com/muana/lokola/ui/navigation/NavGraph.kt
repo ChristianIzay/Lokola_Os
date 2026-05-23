@@ -1,6 +1,7 @@
 package com.muana.lokola.ui.navigation
 
 sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
     object Onboarding : Screen("onboarding")
     object Launcher : Screen("launcher")
     object Mayebi : Screen("mayebi")

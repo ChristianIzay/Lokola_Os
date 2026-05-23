@@ -3,6 +3,7 @@ package com.muana.lokola.util
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -260,6 +261,81 @@ object AppLauncher {
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
+        }
+    }
+
+    /**
+     * Données d'une application installée
+     */
+    data class AppInfo(
+        val packageName: String,
+        val appName: String,
+        val icon: Drawable,
+        val launchIntent: Intent?
+    )
+
+    /**
+     * Récupère toutes les applications installées avec un launcher
+     */
+    fun getInstalledApps(context: Context): List<AppInfo> {
+        val packageManager = context.packageManager
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        
+        val apps = packageManager.queryIntentActivities(intent, 0)
+        return apps.map { resolveInfo ->
+            AppInfo(
+                packageName = resolveInfo.activityInfo.packageName,
+                appName = resolveInfo.loadLabel(packageManager).toString(),
+                icon = resolveInfo.loadIcon(packageManager),
+                launchIntent = packageManager.getLaunchIntentForPackage(resolveInfo.activityInfo.packageName)
+            )
+        }.sortedBy { it.appName.lowercase() }
+    }
+
+    /**
+     * Lance une application spécifique via son Intent
+     */
+    fun launchAppFromInfo(context: Context, appInfo: AppInfo): Boolean {
+        return try {
+            appInfo.launchIntent?.let {
+                it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(it)
+            }
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Erreur lancement ${appInfo.appName}: ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * Catégories d'applications
+     */
+    enum class AppCategory {
+        SOCIAL, PRODUCTIVITY, ENTERTAINMENT, UTILITIES, GAMES, OTHER
+    }
+
+    /**
+     * Trie les applications par catégories
+     */
+    fun categorizeApps(apps: List<AppInfo>): Map<AppCategory, List<AppInfo>> {
+        val socialKeywords = listOf("whatsapp", "facebook", "twitter", "instagram", "tiktok", "telegram", "snapchat")
+        val productivityKeywords = listOf("word", "excel", "docs", "sheets", "calendar", "mail", "gmail", "outlook", "drive")
+        val entertainmentKeywords = listOf("youtube", "netflix", "spotify", "music", "video", "cinema", "rumba")
+        val gameKeywords = listOf("game", "candy", "pubg", "free fire", "clash", "ludo")
+        val utilityKeywords = listOf("calculator", "clock", "files", "settings", "camera", "gallery", "maps", "weather")
+
+        return apps.groupBy { app ->
+            val name = app.appName.lowercase()
+            when {
+                socialKeywords.any { name.contains(it) } -> AppCategory.SOCIAL
+                productivityKeywords.any { name.contains(it) } -> AppCategory.PRODUCTIVITY
+                entertainmentKeywords.any { name.contains(it) } -> AppCategory.ENTERTAINMENT
+                gameKeywords.any { name.contains(it) } -> AppCategory.GAMES
+                utilityKeywords.any { name.contains(it) } -> AppCategory.UTILITIES
+                else -> AppCategory.OTHER
+            }
         }
     }
 

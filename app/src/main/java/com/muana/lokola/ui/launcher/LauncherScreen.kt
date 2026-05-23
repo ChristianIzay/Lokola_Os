@@ -2,6 +2,7 @@ package com.muana.lokola.ui.launcher
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,6 +14,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -31,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import com.muana.lokola.ui.components.DataSaverWidget
 import com.muana.lokola.ui.components.LanguageFAB
 import com.muana.lokola.ui.theme.*
@@ -65,6 +69,7 @@ fun LauncherScreen(
     onLanguageChange: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val installedApps = remember { AppLauncher.getInstalledApps(context) }
 
     val selectedWallpaperId by wallpaperManager.selectedWallpaperId.collectAsState(initial = 0)
     
@@ -99,23 +104,13 @@ fun LauncherScreen(
         }
 
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             // Header avec date et salutation
             HeaderSection(formattedDate = formattedDate)
             
-            // Data Saver Widget
-            DataSaverWidget(
-                isEnabled = dataSaverEnabled,
-                onToggle = onDataSaverToggle
-            )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Quick Actions (Rumba, Actualités)
-            QuickActionsRow()
-            
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
             // Grille d'applications
             LazyVerticalGrid(
@@ -128,31 +123,17 @@ fun LauncherScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                items(getCongoAppList()) { app ->
-                    CongoAppIcon(
+                items(installedApps) { app ->
+                    InstalledAppIcon(
                         app = app,
                         onClick = {
-                            when (app.route) {
-                                "mayebi" -> onMayebiClick()
-                                "settings" -> onSettingsClick()
-                                "phone" -> AppLauncher.launchDialer(context)
-                                "messages" -> AppLauncher.launchMessages(context)
-                                "browser" -> AppLauncher.launchBrowser(context)
-                                "camera" -> AppLauncher.launchCamera(context)
-                                "gallery" -> AppLauncher.launchGallery(context)
-                                "music" -> AppLauncher.launchMusic(context)
-                                "videos" -> AppLauncher.launchVideos(context)
-                                "files" -> AppLauncher.launchFiles(context)
-                                "calculator" -> AppLauncher.launchCalculator(context)
-                                "calendar" -> AppLauncher.launchCalendar(context)
-                                "clock" -> AppLauncher.launchClock(context)
-                            }
+                            AppLauncher.launchAppFromInfo(context, app)
                         }
                     )
                 }
             }
             
-            // Dock fixe en bas avec intents fonctionnels
+            // Dock fixe en bas
             CongoDockBar(context = context)
         }
         
@@ -279,6 +260,44 @@ fun QuickActionCard(action: QuickAction) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun InstalledAppIcon(
+    app: AppLauncher.AppInfo,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White.copy(alpha = 0.1f))
+                .shadow(4.dp, RoundedCornerShape(16.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                bitmap = app.icon.toBitmap().asImageBitmap(),
+                contentDescription = app.appName,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+        
+        Text(
+            text = app.appName,
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            color = Color.White,
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .width(64.dp),
+            maxLines = 2
+        )
     }
 }
 
@@ -410,4 +429,52 @@ fun getQuickActions(): List<QuickAction> {
             gradient = listOf(Color(0xFF007FFF), Color(0xFF003F87))
         )
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBarSection(onSearch: (String) -> Unit) {
+    var query by remember { mutableStateOf("") }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.15f)
+        ),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        TextField(
+            value = query,
+            onValueChange = { 
+                query = it
+                onSearch(it)
+            },
+            placeholder = { 
+                Text(
+                    "Rechercher une application...",
+                    color = Color.White.copy(alpha = 0.7f)
+                ) 
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = Color.White.copy(alpha = 0.9f)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            ),
+            keyboardOptions = KeyboardOptions.Default,
+            singleLine = true
+        )
+    }
 }

@@ -15,6 +15,7 @@ import com.muana.lokola.ui.mayebi.LessonDetailScreen
 import com.muana.lokola.ui.mayebi.MayebiScreen
 import com.muana.lokola.ui.onboarding.OnboardingScreen
 import com.muana.lokola.ui.settings.SettingsScreen
+import com.muana.lokola.ui.splash.SplashScreen
 import com.muana.lokola.ui.wallpaper.WallpaperPickerScreen
 import com.muana.lokola.viewmodel.MainViewModel
 
@@ -26,6 +27,8 @@ fun LokolaNavHost(
     val isOnboardingCompleted by viewModel.isOnboardingCompleted.collectAsState()
     val shouldShowDefaultLauncherPrompt by viewModel.shouldShowDefaultLauncherPrompt.collectAsState()
 
+    // Le Splash Screen s'affiche uniquement au démarrage initial de l'application
+    // Déterminer la destination de départ après le splash
     val startDestination = when {
         !isOnboardingCompleted -> Screen.Onboarding.route
         shouldShowDefaultLauncherPrompt -> Screen.SetDefaultLauncher.route
@@ -34,8 +37,20 @@ fun LokolaNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Splash.route
     ) {
+        // Splash Screen - S'affiche uniquement au démarrage
+        composable(Screen.Splash.route) {
+            SplashScreen(
+                onFinish = {
+                    // Naviguer vers la destination appropriée après le splash
+                    navController.navigate(startDestination) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
                 onComplete = {
