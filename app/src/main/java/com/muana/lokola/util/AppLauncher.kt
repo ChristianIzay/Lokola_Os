@@ -93,8 +93,9 @@ object AppLauncher {
             val intent = if (url != null) {
                 Intent(Intent.ACTION_VIEW, Uri.parse(url))
             } else {
-                Intent(Intent.ACTION_MAIN)
-                intent.addCategory(Intent.CATEGORY_APP_BROWSER)
+                Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_APP_BROWSER)
+                }
             }
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
