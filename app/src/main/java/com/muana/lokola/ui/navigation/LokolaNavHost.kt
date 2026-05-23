@@ -15,6 +15,7 @@ import com.muana.lokola.ui.mayebi.LessonDetailScreen
 import com.muana.lokola.ui.mayebi.MayebiScreen
 import com.muana.lokola.ui.onboarding.OnboardingScreen
 import com.muana.lokola.ui.settings.SettingsScreen
+import com.muana.lokola.ui.settings.ThemePickerScreen
 import com.muana.lokola.ui.splash.SplashScreen
 import com.muana.lokola.ui.wallpaper.WallpaperPickerScreen
 import com.muana.lokola.viewmodel.MainViewModel
@@ -53,6 +54,7 @@ fun LokolaNavHost(
 
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
+                themeManager = viewModel.themeManager,
                 onComplete = {
                     viewModel.completeOnboarding()
                     val destination = if (viewModel.isDefaultLauncher.value) {
@@ -85,6 +87,7 @@ fun LokolaNavHost(
 
             LauncherScreen(
                 wallpaperManager = viewModel.wallpaperManager,
+                themeManager = viewModel.themeManager,
                 dataSaverEnabled = dataSaverEnabled,
                 onDataSaverToggle = viewModel::toggleDataSaver,
                 onMayebiClick = { navController.navigate(Screen.Mayebi.route) },
@@ -119,7 +122,15 @@ fun LokolaNavHost(
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                onWallpaperClick = { navController.navigate(Screen.WallpaperPicker.route) }
+                onWallpaperClick = { navController.navigate(Screen.WallpaperPicker.route) },
+                onThemeClick = { navController.navigate(Screen.ThemePicker.route) }
+            )
+        }
+
+        composable(Screen.ThemePicker.route) {
+            ThemePickerScreen(
+                themeManager = viewModel.themeManager,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

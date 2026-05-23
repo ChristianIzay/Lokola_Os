@@ -7,6 +7,7 @@ import com.muana.lokola.data.local.LokolaDatabase
 import com.muana.lokola.util.DataSaverManager
 import com.muana.lokola.util.LanguageManager
 import com.muana.lokola.util.OnboardingManager
+import com.muana.lokola.util.ThemeManager
 import com.muana.lokola.util.WallpaperManager
 import dagger.Module
 import dagger.Provides
@@ -56,5 +57,11 @@ object AppModule {
     @Singleton
     fun provideWallpaperManager(@ApplicationContext context: Context): WallpaperManager {
         return WallpaperManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideThemeManager(@ApplicationContext context: Context): ThemeManager {
+        return ThemeManager(context)
     }
 }

@@ -2,7 +2,6 @@ package com.muana.lokola.ui.launcher
 
 import android.content.Context
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,6 +38,7 @@ import com.muana.lokola.ui.components.DataSaverWidget
 import com.muana.lokola.ui.components.LanguageFAB
 import com.muana.lokola.ui.theme.*
 import com.muana.lokola.util.AppLauncher
+import com.muana.lokola.util.ThemeManager
 import com.muana.lokola.util.WallpaperManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -61,6 +61,7 @@ data class QuickAction(
 @Composable
 fun LauncherScreen(
     wallpaperManager: WallpaperManager,
+    themeManager: ThemeManager,
     dataSaverEnabled: Boolean,
     onDataSaverToggle: (Boolean) -> Unit,
     onMayebiClick: () -> Unit,
@@ -72,6 +73,8 @@ fun LauncherScreen(
     val installedApps = remember { AppLauncher.getInstalledApps(context) }
 
     val selectedWallpaperId by wallpaperManager.selectedWallpaperId.collectAsState(initial = 0)
+    val currentTheme by themeManager.currentTheme.collectAsState(initial = CongoTheme.FLEUVE)
+    val themeColors = getThemeColors(currentTheme)
     
     val currentDate = remember { LocalDate.now() }
     val formattedDate = remember {
@@ -108,7 +111,7 @@ fun LauncherScreen(
                 .fillMaxSize()
         ) {
             // Header avec date et salutation
-            HeaderSection(formattedDate = formattedDate)
+            HeaderSection(formattedDate = formattedDate, themeColors = themeColors)
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -128,13 +131,14 @@ fun LauncherScreen(
                         app = app,
                         onClick = {
                             AppLauncher.launchAppFromInfo(context, app)
-                        }
+                        },
+                        themeColors = themeColors
                     )
                 }
             }
             
-            // Dock fixe en bas
-            CongoDockBar(context = context)
+            // Dock fixe en bas avec thème culturel
+            CongoDockBar(context = context, themeColors = themeColors)
         }
         
         // Language FAB - Bouton flottant pour switch langue
@@ -146,13 +150,13 @@ fun LauncherScreen(
 }
 
 @Composable
-fun HeaderSection(formattedDate: String) {
+fun HeaderSection(formattedDate: String, themeColors: ThemeColors) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = CongoBlue
+            containerColor = themeColors.primary
         ),
         shape = RoundedCornerShape(20.dp)
     ) {
@@ -161,7 +165,7 @@ fun HeaderSection(formattedDate: String) {
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
-                        colors = listOf(CongoBlue, Color(0xFF0056B3))
+                        colors = listOf(themeColors.primary, themeColors.primaryVariant)
                     )
                 )
                 .padding(20.dp)
@@ -199,7 +203,7 @@ fun HeaderSection(formattedDate: String) {
                 Text(
                     text = "Boyeyi Bolamu na LokolaOS",
                     fontSize = 14.sp,
-                    color = Color(0xFFF7D618),
+                    color = themeColors.secondary,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -266,7 +270,8 @@ fun QuickActionCard(action: QuickAction) {
 @Composable
 fun InstalledAppIcon(
     app: AppLauncher.AppInfo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    themeColors: ThemeColors
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -276,7 +281,7 @@ fun InstalledAppIcon(
             modifier = Modifier
                 .size(60.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White.copy(alpha = 0.1f))
+                .background(Color.White.copy(alpha = 0.2f))
                 .shadow(4.dp, RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -292,7 +297,7 @@ fun InstalledAppIcon(
             fontSize = 11.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,
-            color = Color.White,
+            color = themeColors.textPrimary,
             modifier = Modifier
                 .padding(top = 6.dp)
                 .width(64.dp),
@@ -341,10 +346,10 @@ fun CongoAppIcon(
 }
 
 @Composable
-fun CongoDockBar(context: Context) {
+fun CongoDockBar(context: Context, themeColors: ThemeColors) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = themeColors.dockBackground,
         shadowElevation = 8.dp
     ) {
         Row(
@@ -353,16 +358,16 @@ fun CongoDockBar(context: Context) {
                 .padding(vertical = 12.dp, horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            DockItem(Icons.Default.Phone, "Téléphone", CongoGreen) {
+            DockItem(Icons.Default.Phone, "Téléphone", themeColors.primary) {
                 AppLauncher.launchDialer(context)
             }
-            DockItem(Icons.Default.Message, "Messages", CongoBlue) {
+            DockItem(Icons.Default.Message, "Messages", themeColors.accent) {
                 AppLauncher.launchMessages(context)
             }
-            DockItem(Icons.Default.Public, "Internet", CongoDarkBlue) {
+            DockItem(Icons.Default.Public, "Internet", themeColors.primaryVariant) {
                 AppLauncher.launchBrowser(context)
             }
-            DockItem(Icons.Default.PhotoCamera, "Photo", CongoRed) {
+            DockItem(Icons.Default.PhotoCamera, "Photo", themeColors.secondary) {
                 AppLauncher.launchCamera(context)
             }
         }
@@ -392,7 +397,7 @@ fun DockItem(icon: ImageVector, label: String, color: Color, onClick: () -> Unit
         Text(
             text = label,
             fontSize = 10.sp,
-            color = LauncherTextSecondary,
+            color = themeColors.textSecondary,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(top = 4.dp)
         )

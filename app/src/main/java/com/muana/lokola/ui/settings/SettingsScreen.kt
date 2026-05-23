@@ -27,6 +27,7 @@ import com.muana.lokola.R
 fun SettingsScreen(
     onBack: () -> Unit,
     onWallpaperClick: () -> Unit = {},
+    onThemeClick: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val dataSaverEnabled by viewModel.dataSaverEnabled.collectAsState()
@@ -102,6 +103,13 @@ fun SettingsScreen(
                     title = "Fond d'écran",
                     description = "Changer l'arrière-plan du launcher",
                     onClick = onWallpaperClick
+                )
+                
+                SettingsItem(
+                    icon = Icons.Default.ColorLens,
+                    title = "Thème Culturel",
+                    description = "Rumba, Savane, Fleuve ou Forêt",
+                    onClick = onThemeClick
                 )
             }
 

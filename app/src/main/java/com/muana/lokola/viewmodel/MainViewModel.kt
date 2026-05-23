@@ -7,6 +7,7 @@ import com.muana.lokola.util.DataSaverManager
 import com.muana.lokola.util.LanguageManager
 import com.muana.lokola.util.LauncherHelper
 import com.muana.lokola.util.OnboardingManager
+import com.muana.lokola.util.ThemeManager
 import com.muana.lokola.util.WallpaperManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,7 +26,8 @@ class MainViewModel @Inject constructor(
     private val languageManager: LanguageManager,
     private val onboardingManager: OnboardingManager,
     private val dataSaverManager: DataSaverManager,
-    val wallpaperManager: WallpaperManager
+    val wallpaperManager: WallpaperManager,
+    val themeManager: ThemeManager
 ) : ViewModel() {
 
     val dataSaverEnabled: StateFlow<Boolean> = dataSaverManager.isDataSaverEnabled
