@@ -2,10 +2,10 @@ package com.muana.lokola.ui.animations
 
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 
 /**
  * Animations de transition pour le changement de mode thème (clair/sombre)
@@ -27,7 +27,7 @@ fun animateThemeColorAsState(
 ): State<Color> {
     return animateValueAsState(
         targetValue = targetValue,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
+        typeConverter = Color.VectorConverter,
         animationSpec = animationSpec,
         label = label
     )
@@ -69,7 +69,7 @@ fun animateBackgroundAsState(
     
     return animateValueAsState(
         targetValue = targetColor,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
+        typeConverter = Color.VectorConverter,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = FastOutSlowInEasing
