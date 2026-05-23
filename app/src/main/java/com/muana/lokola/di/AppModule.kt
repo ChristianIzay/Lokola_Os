@@ -6,9 +6,11 @@ import com.muana.lokola.data.local.LessonDao
 import com.muana.lokola.data.local.LokolaDatabase
 import com.muana.lokola.util.DataSaverManager
 import com.muana.lokola.util.LanguageManager
+import com.muana.lokola.util.LauncherHelper
 import com.muana.lokola.util.OnboardingManager
 import com.muana.lokola.util.ThemeManager
 import com.muana.lokola.util.WallpaperManager
+import com.muana.lokola.util.WidgetPreferencesManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -63,5 +65,11 @@ object AppModule {
     @Singleton
     fun provideThemeManager(@ApplicationContext context: Context): ThemeManager {
         return ThemeManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWidgetPreferencesManager(@ApplicationContext context: Context): WidgetPreferencesManager {
+        return WidgetPreferencesManager(context)
     }
 }

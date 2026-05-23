@@ -88,6 +88,7 @@ fun LokolaNavHost(
             LauncherScreen(
                 wallpaperManager = viewModel.wallpaperManager,
                 themeManager = viewModel.themeManager,
+                widgetPreferencesManager = viewModel.widgetPreferencesManager,
                 dataSaverEnabled = dataSaverEnabled,
                 onDataSaverToggle = viewModel::toggleDataSaver,
                 onMayebiClick = { navController.navigate(Screen.Mayebi.route) },

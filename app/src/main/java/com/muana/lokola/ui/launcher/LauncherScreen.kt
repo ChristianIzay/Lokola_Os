@@ -40,6 +40,8 @@ import com.muana.lokola.ui.components.LanguageFAB
 import com.muana.lokola.ui.components.RumbaWidget
 import com.muana.lokola.ui.components.CongoNewsWidget
 import com.muana.lokola.ui.components.CulturalCalendarWidget
+import com.muana.lokola.ui.components.ProverbWidget
+import com.muana.lokola.ui.components.CongoWeatherWidget
 import com.muana.lokola.ui.theme.drawCulturalPattern
 import com.muana.lokola.ui.icons.CongoIcons
 import com.muana.lokola.ui.icons.Drum
@@ -72,6 +74,7 @@ data class QuickAction(
 fun LauncherScreen(
     wallpaperManager: WallpaperManager,
     themeManager: ThemeManager,
+    widgetPreferencesManager: WidgetPreferencesManager,
     dataSaverEnabled: Boolean,
     onDataSaverToggle: (Boolean) -> Unit,
     onMayebiClick: () -> Unit,
@@ -85,6 +88,13 @@ fun LauncherScreen(
     val selectedWallpaperId by wallpaperManager.selectedWallpaperId.collectAsState(initial = 0)
     val currentTheme by themeManager.currentTheme.collectAsState(initial = CongoTheme.FLEUVE)
     val themeColors = getThemeColors(currentTheme)
+    
+    // États des widgets
+    val rumbaEnabled by widgetPreferencesManager.isRumbaWidgetEnabled.collectAsState(initial = true)
+    val newsEnabled by widgetPreferencesManager.isNewsWidgetEnabled.collectAsState(initial = true)
+    val calendarEnabled by widgetPreferencesManager.isCalendarWidgetEnabled.collectAsState(initial = true)
+    val proverbEnabled by widgetPreferencesManager.isProverbWidgetEnabled.collectAsState(initial = false)
+    val weatherEnabled by widgetPreferencesManager.isWeatherWidgetEnabled.collectAsState(initial = false)
     
     val currentDate = remember { LocalDate.now() }
     val formattedDate = remember {
@@ -127,8 +137,15 @@ fun LauncherScreen(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Widgets culturels (optionnels - peuvent être activés/désactivés)
-            CulturalWidgetsSection(themeColors = themeColors)
+            // Widgets culturels (avec personnalisation)
+            CulturalWidgetsSection(
+                themeColors = themeColors,
+                rumbaEnabled = rumbaEnabled,
+                newsEnabled = newsEnabled,
+                calendarEnabled = calendarEnabled,
+                proverbEnabled = proverbEnabled,
+                weatherEnabled = weatherEnabled
+            )
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -506,7 +523,14 @@ fun SearchBarSection(onSearch: (String) -> Unit) {
 }
 
 @Composable
-fun CulturalWidgetsSection(themeColors: ThemeColors) {
+fun CulturalWidgetsSection(
+    themeColors: ThemeColors,
+    rumbaEnabled: Boolean = true,
+    newsEnabled: Boolean = true,
+    calendarEnabled: Boolean = true,
+    proverbEnabled: Boolean = false,
+    weatherEnabled: Boolean = false
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -514,12 +538,28 @@ fun CulturalWidgetsSection(themeColors: ThemeColors) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Widget Rumba UNESCO
-        RumbaWidget(themeColors = themeColors)
+        if (rumbaEnabled) {
+            RumbaWidget(themeColors = themeColors)
+        }
         
         // Widget Actualités RDC
-        CongoNewsWidget(themeColors = themeColors)
+        if (newsEnabled) {
+            CongoNewsWidget(themeColors = themeColors)
+        }
         
         // Widget Calendrier Culturel
-        CulturalCalendarWidget(themeColors = themeColors)
+        if (calendarEnabled) {
+            CulturalCalendarWidget(themeColors = themeColors)
+        }
+        
+        // Widget Proverbes Congolais
+        if (proverbEnabled) {
+            ProverbWidget(themeColors = themeColors)
+        }
+        
+        // Widget Météo RDC
+        if (weatherEnabled) {
+            CongoWeatherWidget(themeColors = themeColors)
+        }
     }
 }

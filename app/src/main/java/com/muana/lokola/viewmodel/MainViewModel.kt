@@ -9,6 +9,7 @@ import com.muana.lokola.util.LauncherHelper
 import com.muana.lokola.util.OnboardingManager
 import com.muana.lokola.util.ThemeManager
 import com.muana.lokola.util.WallpaperManager
+import com.muana.lokola.util.WidgetPreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,8 @@ class MainViewModel @Inject constructor(
     private val onboardingManager: OnboardingManager,
     private val dataSaverManager: DataSaverManager,
     val wallpaperManager: WallpaperManager,
-    val themeManager: ThemeManager
+    val themeManager: ThemeManager,
+    val widgetPreferencesManager: WidgetPreferencesManager
 ) : ViewModel() {
 
     val dataSaverEnabled: StateFlow<Boolean> = dataSaverManager.isDataSaverEnabled
