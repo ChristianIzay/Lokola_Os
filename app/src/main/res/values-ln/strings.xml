@@ -22,6 +22,12 @@
     <string name="launcher_search">Luka...</string>
     <string name="launcher_open_apps">Ba applications</string>
 
+    <!-- Default Launcher Setup -->
+    <string name="default_launcher_title">Pona Lokola lokola ecran ya liboso</string>
+    <string name="default_launcher_subtitle">Mpo na kosalela Lokola OS malamu, pona yango lokola launcher ya liboso. Lokola ekolakisama na ebandeli mpe ntango okofina Home.</string>
+    <string name="default_launcher_set_button">Pona lokola liboso</string>
+    <string name="default_launcher_skip_button">Na nsima</string>
+
     <!-- Data Saver Widget -->
     <string name="datasaver_widget_title">Data Saver</string>
     <string name="datasaver_widget_active">Efungwami</string>

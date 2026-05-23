@@ -1,7 +1,6 @@
 package com.muana.lokola.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -10,7 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.muana.lokola.data.local.DataSeeder
+import com.muana.lokola.ui.launcher.DefaultLauncherScreen
 import com.muana.lokola.ui.launcher.LauncherScreen
 import com.muana.lokola.ui.mayebi.LessonDetailScreen
 import com.muana.lokola.ui.mayebi.MayebiScreen
@@ -18,33 +17,48 @@ import com.muana.lokola.ui.onboarding.OnboardingScreen
 import com.muana.lokola.ui.settings.SettingsScreen
 import com.muana.lokola.ui.wallpaper.WallpaperPickerScreen
 import com.muana.lokola.viewmodel.MainViewModel
-import dagger.hilt.android.EntryPointAccessors
-import javax.inject.Inject
 
 @Composable
 fun LokolaNavHost(
     navController: NavHostController,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    val isFirstLaunch by viewModel.isFirstLaunch.collectAsState()
+    val isOnboardingCompleted by viewModel.isOnboardingCompleted.collectAsState()
+    val shouldShowDefaultLauncherPrompt by viewModel.shouldShowDefaultLauncherPrompt.collectAsState()
 
-    // Seed initial data on first launch
-    LaunchedEffect(Unit) {
-        if (isFirstLaunch) {
-            viewModel.markOnboardingCompleted()
-        }
+    val startDestination = when {
+        !isOnboardingCompleted -> Screen.Onboarding.route
+        shouldShowDefaultLauncherPrompt -> Screen.SetDefaultLauncher.route
+        else -> Screen.Launcher.route
     }
 
     NavHost(
         navController = navController,
-        startDestination = if (isFirstLaunch) Screen.Onboarding.route else Screen.Launcher.route
+        startDestination = startDestination
     ) {
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
                 onComplete = {
-                    viewModel.markOnboardingCompleted()
-                    navController.navigate(Screen.Launcher.route) {
+                    viewModel.completeOnboarding()
+                    val destination = if (viewModel.isDefaultLauncher.value) {
+                        Screen.Launcher.route
+                    } else {
+                        Screen.SetDefaultLauncher.route
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.SetDefaultLauncher.route) {
+            DefaultLauncherScreen(
+                viewModel = viewModel,
+                onContinue = {
+                    viewModel.skipDefaultLauncherPrompt()
+                    navController.navigate(Screen.Launcher.route) {
+                        popUpTo(Screen.SetDefaultLauncher.route) { inclusive = true }
                     }
                 }
             )
@@ -52,8 +66,12 @@ fun LokolaNavHost(
 
         composable(Screen.Launcher.route) {
             val currentLanguage by viewModel.currentLanguage.collectAsState()
-            
+            val dataSaverEnabled by viewModel.dataSaverEnabled.collectAsState()
+
             LauncherScreen(
+                wallpaperManager = viewModel.wallpaperManager,
+                dataSaverEnabled = dataSaverEnabled,
+                onDataSaverToggle = viewModel::toggleDataSaver,
                 onMayebiClick = { navController.navigate(Screen.Mayebi.route) },
                 onSettingsClick = { navController.navigate(Screen.Settings.route) },
                 currentLanguage = currentLanguage,

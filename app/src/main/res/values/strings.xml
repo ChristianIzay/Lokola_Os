@@ -22,6 +22,12 @@
     <string name="launcher_search">Rechercher...</string>
     <string name="launcher_open_apps">Applications</string>
 
+    <!-- Default Launcher Setup -->
+    <string name="default_launcher_title">Définir Lokola comme écran d\'accueil</string>
+    <string name="default_launcher_subtitle">Pour profiter pleinement de Lokola OS, définissez-le comme launcher par défaut. Ainsi, Lokola s\'affichera au démarrage et quand vous appuyez sur Home.</string>
+    <string name="default_launcher_set_button">Définir comme accueil</string>
+    <string name="default_launcher_skip_button">Plus tard</string>
+
     <!-- Data Saver Widget -->
     <string name="datasaver_widget_title">Data Saver</string>
     <string name="datasaver_widget_active">Actif</string>

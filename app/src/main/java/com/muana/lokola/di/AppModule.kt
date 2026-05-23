@@ -6,6 +6,8 @@ import com.muana.lokola.data.local.LessonDao
 import com.muana.lokola.data.local.LokolaDatabase
 import com.muana.lokola.util.DataSaverManager
 import com.muana.lokola.util.LanguageManager
+import com.muana.lokola.util.OnboardingManager
+import com.muana.lokola.util.WallpaperManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,7 +42,19 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideOnboardingManager(@ApplicationContext context: Context): OnboardingManager {
+        return OnboardingManager(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideDataSaverManager(@ApplicationContext context: Context): DataSaverManager {
         return DataSaverManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWallpaperManager(@ApplicationContext context: Context): WallpaperManager {
+        return WallpaperManager(context)
     }
 }

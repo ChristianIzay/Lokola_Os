@@ -172,6 +172,86 @@ object AppLauncher {
     }
 
     /**
+     * Ouvre l'application Musique
+     */
+    fun launchMusic(context: Context): Boolean {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, "audio/*")
+        }
+        return startActivitySafe(context, intent)
+            || launchApp(context, "com.google.android.music")
+            || launchApp(context, "com.android.music")
+    }
+
+    /**
+     * Ouvre l'application Vidéos
+     */
+    fun launchVideos(context: Context): Boolean {
+        val intent = Intent(Intent.ACTION_VIEW, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        return startActivitySafe(context, intent)
+            || launchApp(context, "com.google.android.videos")
+    }
+
+    /**
+     * Ouvre le gestionnaire de fichiers
+     */
+    fun launchFiles(context: Context): Boolean {
+        val documentsIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(
+                Uri.parse("content://com.android.externalstorage.documents/root/primary"),
+                "vnd.android.document/directory"
+            )
+        }
+        val downloadsIntent = Intent("android.intent.action.VIEW_DOWNLOADS")
+        return startActivitySafe(context, documentsIntent)
+            || startActivitySafe(context, downloadsIntent)
+            || launchApp(context, "com.google.android.documentsui")
+            || launchApp(context, "com.android.documentsui")
+    }
+
+    /**
+     * Ouvre la calculatrice
+     */
+    fun launchCalculator(context: Context): Boolean {
+        return launchApp(context, "com.google.android.calculator")
+            || launchApp(context, "com.android.calculator2")
+    }
+
+    /**
+     * Ouvre le calendrier
+     */
+    fun launchCalendar(context: Context): Boolean {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse("content://com.android.calendar/time/${System.currentTimeMillis()}")
+        }
+        return startActivitySafe(context, intent)
+            || launchApp(context, "com.google.android.calendar")
+            || launchApp(context, "com.android.calendar")
+    }
+
+    /**
+     * Ouvre l'horloge
+     */
+    fun launchClock(context: Context): Boolean {
+        return launchApp(context, "com.google.android.deskclock")
+            || launchApp(context, "com.android.deskclock")
+    }
+
+    private fun startActivitySafe(context: Context, intent: Intent): Boolean {
+        return try {
+            if (context.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+                return false
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Erreur lancement intent: ${e.message}")
+            false
+        }
+    }
+
+    /**
      * Vérifie si une application est installée
      */
     fun isAppInstalled(context: Context, packageName: String): Boolean {
