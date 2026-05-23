@@ -1,6 +1,12 @@
 package com.muana.lokola.ui.animations
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -17,6 +23,15 @@ import androidx.compose.ui.graphics.graphicsLayer
  * Crée un effet de fondu enchaîné élégant
  */
 fun rumbaTransition(): FiniteAnimationSpec<Float> = tween(
+    durationMillis = 800,
+    easing = FastOutSlowInEasing
+)
+
+/**
+ * Animation de transition pour les offsets (IntOffset)
+ * Utilisée pour les transitions de slide horizontales/verticales
+ */
+fun rumbaOffsetTransition(): FiniteAnimationSpec<IntOffset> = tween(
     durationMillis = 800,
     easing = FastOutSlowInEasing
 )
@@ -222,7 +237,7 @@ fun Modifier.forestGrow(visible: Boolean): Modifier {
 fun rememberRumbaPageTransition(): EnterTransition {
     return slideInHorizontally(
         initialOffsetX = { it },
-        animationSpec = rumbaTransition()
+        animationSpec = rumbaOffsetTransition()
     ) + fadeIn(animationSpec = rumbaTransition())
 }
 
@@ -230,6 +245,6 @@ fun rememberRumbaPageTransition(): EnterTransition {
 fun rememberRumbaPageExitTransition(): ExitTransition {
     return slideOutHorizontally(
         targetOffsetX = { -it },
-        animationSpec = rumbaTransition()
+        animationSpec = rumbaOffsetTransition()
     ) + fadeOut(animationSpec = rumbaTransition())
 }
