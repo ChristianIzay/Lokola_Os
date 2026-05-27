@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.muana.lokola.R
+import com.muana.lokola.ui.theme.CongoTheme
+import com.muana.lokola.ui.theme.getThemeColors
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
@@ -32,7 +33,10 @@ fun SettingsScreen(
 ) {
     val dataSaverEnabled by viewModel.dataSaverEnabled.collectAsState()
     val currentLanguage by viewModel.currentLanguage.collectAsState()
+    val currentTheme by viewModel.themeManager.currentTheme.collectAsState(initial = CongoTheme.FLEUVE)
     val uriHandler = LocalUriHandler.current
+    
+    val themeColors = getThemeColors(currentTheme)
 
     Scaffold(
         topBar = {
@@ -44,9 +48,9 @@ fun SettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = themeColors.primary,
+                    titleContentColor = themeColors.textPrimary,
+                    navigationIconContentColor = themeColors.textPrimary
                 )
             )
         }
@@ -56,7 +60,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .background(MaterialTheme.colorScheme.background)
+                .background(themeColors.background)
         ) {
             // Data Saver Setting
             SettingsSection(
@@ -94,21 +98,21 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Wallpaper Setting
+            // Wallpaper & Theme Setting
             SettingsSection(
-                title = "Personnalisation"
+                title = stringResource(R.string.settings_personalization)
             ) {
                 SettingsItem(
                     icon = Icons.Default.Image,
-                    title = "Fond d'écran",
-                    description = "Changer l'arrière-plan du launcher",
+                    title = stringResource(R.string.settings_wallpaper),
+                    description = stringResource(R.string.settings_wallpaper_desc),
                     onClick = onWallpaperClick
                 )
                 
                 SettingsItem(
                     icon = Icons.Default.ColorLens,
-                    title = "Thème Culturel",
-                    description = "Rumba, Savane, Fleuve ou Forêt",
+                    title = stringResource(R.string.settings_theme_cultural),
+                    description = "${currentTheme.icon} ${currentTheme.displayName}",
                     onClick = onThemeClick
                 )
             }
@@ -117,7 +121,7 @@ fun SettingsScreen(
             
             // Theme Mode Selector
             SettingsSection(
-                title = "Apparence"
+                title = stringResource(R.string.settings_appearance)
             ) {
                 ThemeModeSelector(themeModeManager = viewModel.themeModeManager)
             }
@@ -131,7 +135,7 @@ fun SettingsScreen(
                 SettingsItem(
                     icon = Icons.Default.Info,
                     title = stringResource(R.string.settings_version),
-                    description = "1.0.0",
+                    description = stringResource(R.string.settings_version_desc),
                     onClick = {}
                 )
 
@@ -161,9 +165,9 @@ fun SettingsScreen(
 
             // Footer
             Text(
-                text = "Lokola OS - Fierté Congolaise",
+                text = stringResource(R.string.settings_footer),
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = themeColors.textSecondary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),

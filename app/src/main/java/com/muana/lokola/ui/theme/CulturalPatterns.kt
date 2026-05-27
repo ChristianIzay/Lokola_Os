@@ -42,8 +42,7 @@ fun DrawScope.drawKubaPattern(
                 color = if ((x / patternSize + y / patternSize).toInt() % 2 == 0) 
                     primaryColor.copy(alpha = 0.3f) 
                 else 
-                    secondaryColor.copy(alpha = 0.3f),
-                style = Stroke(width = stroke)
+                    secondaryColor.copy(alpha = 0.3f)
             )
             
             y += patternSize
@@ -78,8 +77,7 @@ fun DrawScope.drawLubaPattern(
             
             drawPath(
                 path = path1,
-                color = primaryColor.copy(alpha = 0.2f),
-                style = Stroke(width = stroke)
+                color = primaryColor.copy(alpha = 0.2f)
             )
             
             // Triangle vers le bas (décalé)
@@ -93,8 +91,7 @@ fun DrawScope.drawLubaPattern(
                 
                 drawPath(
                     path = path2,
-                    color = secondaryColor.copy(alpha = 0.2f),
-                    style = Stroke(width = stroke)
+                    color = secondaryColor.copy(alpha = 0.2f)
                 )
             }
             
@@ -141,8 +138,7 @@ fun DrawScope.drawRiverPattern(
             color = if ((y / waveHeight).toInt() % 2 == 0) 
                 primaryColor.copy(alpha = 0.3f) 
             else 
-                secondaryColor.copy(alpha = 0.3f),
-            style = Stroke(width = stroke)
+                secondaryColor.copy(alpha = 0.3f)
         )
         
         y += waveHeight
@@ -173,8 +169,7 @@ fun DrawScope.drawMaskPattern(
                     else 
                         secondaryColor.copy(alpha = 0.2f / i),
                     radius = (spacing / 4 * i).toFloat(),
-                    center = Offset(x, y),
-                    style = Stroke(width = stroke)
+                    center = Offset(x, y)
                 )
             }
             
@@ -217,8 +212,7 @@ fun DrawScope.drawRumbaPattern(
             color = if ((y / zigzagHeight).toInt() % 2 == 0) 
                 primaryColor.copy(alpha = 0.25f) 
             else 
-                secondaryColor.copy(alpha = 0.25f),
-            style = Stroke(width = stroke)
+                secondaryColor.copy(alpha = 0.25f)
         )
         
         y += zigzagHeight

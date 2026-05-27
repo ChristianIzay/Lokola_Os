@@ -1,11 +1,14 @@
 package com.muana.lokola.ui.animations
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 
 /**
  * Animations de transition pour le changement de mode thème (clair/sombre)
@@ -25,9 +28,8 @@ fun animateThemeColorAsState(
     ),
     label: String = "themeColorAnimation"
 ): State<Color> {
-    return animateValueAsState(
+    return animateColorAsState(
         targetValue = targetValue,
-        typeConverter = Color.VectorConverter,
         animationSpec = animationSpec,
         label = label
     )
@@ -43,7 +45,7 @@ fun Modifier.themeTransitionFade(
     durationMillis: Int = 250
 ): Modifier {
     val alpha by animateFloatAsState(
-        targetValue = 1f,
+        targetValue = if (isDarkMode) 1f else 1f,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = LinearEasing
@@ -67,9 +69,8 @@ fun animateBackgroundAsState(
 ): State<Color> {
     val targetColor = if (isDarkMode) darkColor else lightColor
     
-    return animateValueAsState(
+    return animateColorAsState(
         targetValue = targetColor,
-        typeConverter = Color.VectorConverter,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = FastOutSlowInEasing
@@ -91,9 +92,8 @@ fun animateTextColorAsState(
 ): State<Color> {
     val targetColor = if (isDarkMode) darkTextColor else lightTextColor
     
-    return animateValueAsState(
+    return animateColorAsState(
         targetValue = targetColor,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = FastOutSlowInEasing
@@ -118,9 +118,8 @@ fun animateGradientAsState(
     val startColor = if (isDarkMode) darkStart else lightStart
     val endColor = if (isDarkMode) darkEnd else lightEnd
     
-    val animatedStart = animateValueAsState(
+    val animatedStart = animateColorAsState(
         targetValue = startColor,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = FastOutSlowInEasing
@@ -128,9 +127,8 @@ fun animateGradientAsState(
         label = "gradientStart"
     )
     
-    val animatedEnd = animateValueAsState(
+    val animatedEnd = animateColorAsState(
         targetValue = endColor,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = FastOutSlowInEasing
@@ -162,7 +160,7 @@ fun Modifier.themeTransitionScale(
         label = "themeScale"
     )
     
-    return this then androidx.compose.ui.graphics.graphicsLayer(scaleX = scale, scaleY = scale)
+    return this then graphicsLayer(scaleX = scale, scaleY = scale)
 }
 
 /**
@@ -197,16 +195,14 @@ fun rememberThemeTransition(
         label = "transitionScale"
     )
     
-    val backgroundColor by animateValueAsState(
+    val backgroundColor by animateColorAsState(
         targetValue = if (isDarkMode) darkBackground else lightBackground,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
         animationSpec = tween(durationMillis, easing = FastOutSlowInEasing),
         label = "transitionBackground"
     )
     
-    val textColor by animateValueAsState(
+    val textColor by animateColorAsState(
         targetValue = if (isDarkMode) darkText else lightText,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
         animationSpec = tween(durationMillis, easing = FastOutSlowInEasing),
         label = "transitionText"
     )
@@ -246,9 +242,8 @@ fun animateThemeColorRumbaAsState(
     durationMillis: Int = 400,
     label: String = "rumbaThemeColor"
 ): State<Color> {
-    return animateValueAsState(
+    return animateColorAsState(
         targetValue = targetValue,
-        typeConverter = androidx.compose.animation.core.Color.VectorConverter,
         animationSpec = tween(
             durationMillis = durationMillis,
             easing = RumbaEasing

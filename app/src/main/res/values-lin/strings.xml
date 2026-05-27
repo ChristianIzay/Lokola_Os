@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Lokola OS</string>
+
+    <!-- Onboarding Screens -->
+    <string name="onboarding_welcome_title">Mbote!</string>
+    <string name="onboarding_welcome_subtitle">Oyo ezali Congo - Smartphone na yo, identité na yo</string>
+    <string name="onboarding_welcome_button">Kobáti</string>
+
+    <string name="onboarding_datasaver_title">Kobómbisa data na yo</string>
+    <string name="onboarding_datasaver_subtitle">Data Saver ezali na ndáko mpo na kobómbisa data mobile</string>
+    <string name="onboarding_datasaver_button">Kobáti</string>
+
+    <string name="onboarding_language_title">Pɔní lokótá na yo</string>
+    <string name="onboarding_language_subtitle">Pɔní lokótá ya interface</string>
+    <string name="onboarding_language_french">Français</string>
+    <string name="onboarding_language_lingala">Lingala</string>
+    <string name="onboarding_language_button">Kobáti</string>
+
+    <!-- Launcher -->
+    <string name="launcher_search">Luká...</string>
+    <string name="launcher_open_apps">Misálá</string>
+
+    <!-- Default Launcher Setup -->
+    <string name="default_launcher_title">Bóndí Lokola lokóla écran ya mbóka</string>
+    <string name="default_launcher_subtitle">Mpo na kosála Lokola OS malámu, bóndí yango lokóla launcher ya mbóka. Lokola ekobímbá ntángo ya kobáti mpe ntángo ya kopíá Home.</string>
+    <string name="default_launcher_set_button">Bóndí lokóla mbóka</string>
+    <string name="default_launcher_skip_button">Ndeko</string>
+
+    <!-- Data Saver Widget -->
+    <string name="datasaver_widget_title">Data Saver</string>
+    <string name="datasaver_widget_active">Ezali</string>
+    <string name="datasaver_widget_inactive">Ezali te</string>
+    <string name="datasaver_widget_data_used">Data esále</string>
+    <string name="datasaver_widget_data_saved">Data ebómbí</string>
+
+    <!-- Mayebi (Lokola Edu) -->
+    <string name="mayebi_title">Mayebi</string>
+    <string name="mayebi_subtitle">Yébi ntángo te</string>
+    <string name="mayebi_lessons">Malíli</string>
+    <string name="mayebi_progress">Bosáli</string>
+    <string name="mayebi_offline">Ezali ntángo te</string>
+    <string name="mayebi_start_learning">Kobáti koyébi</string>
+    <string name="mayebi_lesson_complete">Malíli esále!</string>
+
+    <!-- Lesson Categories -->
+    <string name="category_math">Matematíki</string>
+    <string name="category_french">Français</string>
+    <string name="category_science">Sánsi</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Bikóli Lokola</string>
+    <string name="settings_datasaver">Data Saver</string>
+    <string name="settings_datasaver_description">Kobómbisa data</string>
+    <string name="settings_language">Lokótá</string>
+    <string name="settings_language_description">Kobóngola lokótá ya interface</string>
+    <string name="settings_about">Na nté</string>
+    <string name="settings_version">Vɛrsí</string>
+    <string name="settings_made_in">Bosalami na Kinshasa 🇨🇩</string>
+    <string name="settings_contact">WhatsApp</string>
+
+    <!-- Common -->
+    <string name="common_next">Kobáti</string>
+    <string name="common_finish">Kobáti</string>
+    <string name="common_cancel">Kobóli</string>
+    <string name="common_ok">OK</string>
+    <string name="common_close">Kobóli</string>
+    <string name="common_settings">Bikóli</string>
+    <string name="common_back">Kobóli</string>
+
+    <!-- Launcher (for language switching) -->
+    <string name="launcher_cultural_content">Makambo ya bonkóko &amp; sango</string>
+    <string name="launcher_applications_title">Misálá</string>
+    <string name="launcher_applications_count">%1$d misálá miyá</string>
+    <string name="launcher_page3_title">Lukásá 3</string>
+    <string name="launcher_page3_description">Esika ya kobáti misálá tǒ bilembó ya mbóka</string>
+    <string name="launcher_settings">Bikóli</string>
+    <string name="launcher_header_greeting">Mbote! 🇨🇩</string>
+    <string name="launcher_header_subtitle">Boyeyi Bolamu na LokolaOS</string>
+
+    <!-- Launcher Dock -->
+    <string name="dock_phone">Téle</string>
+    <string name="dock_messages">Básí</string>
+    <string name="dock_internet">Intanéti</string>
+    <string name="dock_photo">Foto</string>
+
+    <!-- Launcher Settings Sheet -->
+    <string name="settings_sheet_widgets">Bisálá</string>
+    <string name="settings_sheet_language">Lokótá</string>
+    <string name="settings_sheet_data_saver">Data Saver</string>
+    <string name="settings_sheet_button_position">Bóto ya Bikóli</string>
+
+    <!-- Cultural Widgets -->
+    <string name="widget_rumba_title">Rumba ya Kôngɔ</string>
+    <string name="widget_rumba_badge">UNESCO</string>
+
+    <string name="widget_proverb_title">Loloba ya Lɛlɔ</string>
+    <string name="widget_proverb_translation">Bolandi na Français</string>
+    <string name="widget_proverb_meaning">📖 Ntá</string>
+
+    <string name="widget_news_title">Sango ya RDC</string>
+    <string name="widget_news_see_all">Mɔ́tɔ mɔ́nsɔ</string>
+
+    <string name="widget_calendar_title">Kalendá ya Bonkóko</string>
+
+    <string name="widget_weather_title">Météo ya RDC</string>
+    <string name="widget_weather_humidity">Mɔ́tɔ</string>
+    <string name="widget_weather_wind">Mopɛ́pɛ</string>
+
+    <!-- Weather conditions (Lingala) -->
+    <string name="weather_sunny">Mɔtó</string>
+    <string name="weather_cloudy">Mapú</string>
+    <string name="weather_rain">Mbúla</string>
+    <string name="weather_storm">Nkúmba</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_personalization">Bopɛngi</string>
+    <string name="settings_wallpaper">Líliká</string>
+    <string name="settings_wallpaper_desc">Kobóngola ndáko ya launcher</string>
+    <string name="settings_theme_cultural">Thème ya Bonkóko</string>
+    <string name="settings_theme_desc">Rumba, Savane, Fleuve tǒ Forêt</string>
+    <string name="settings_appearance">Bonzángá</string>
+    <string name="settings_version_desc">1.0.0</string>
+    <string name="settings_footer">Lokola OS - Bopɛngi ya Kôngɔ</string>
+
+    <!-- Theme Picker -->
+    <string name="theme_picker_title">Thème ya Bonkóko</string>
+    <string name="theme_picker_subtitle">Pɔní ambiance ya Lokola OS</string>
+    <string name="theme_picker_description">Bíló bínɛ biyá na bonkóko ya Kôngɔ</string>
+    <string name="theme_active">Ezali</string>
+
+    <string name="theme_rumba_desc">Ngúya na bolingo ya rumba ya Kôngɔ</string>
+    <string name="theme_savane_desc">Mɔtó ya nsúmba ya mabúmá</string>
+    <string name="theme_fleuve_desc">Bonzángá ya ebale Congo</string>
+    <string name="theme_foret_desc">Mabúmá ma mbúla ya zámba</string>
+
+    <!-- Wallpaper Picker -->
+    <string name="wallpaper_picker_title">Kopɔní líliká</string>
+
+    <!-- Theme Mode -->
+    <string name="theme_mode_title">Bonzángá</string>
+    <string name="theme_mode_subtitle">Pɔní ndéngé Lokola OS ekobɛ́ngá na mpóka na yo</string>
+    <string name="theme_mode_light">Bonzángá ya Mɔtó</string>
+    <string name="theme_mode_light_desc">Kozála na bonzángá ya mɔtó ntángo nɔ́nsɔ</string>
+    <string name="theme_mode_dark">Bonzángá ya Molílí</string>
+    <string name="theme_mode_dark_desc">Kozála na bonzángá ya molílí ntángo nɔ́nsɔ</string>
+    <string name="theme_mode_system">Sístɛmɛ</string>
+    <string name="theme_mode_system_desc">Kolándí bisálá bya telefóno</string>
+
+    <!-- Onboarding additional strings -->
+    <string name="onboarding_welcome_philosophy_title">Télefonó na lóndá na yo</string>
+    <string name="onboarding_welcome_philosophy_subtitle">Ezómi na bonkóko ya Kôngɔ</string>
+    <string name="onboarding_theme_title">Pɔní ambiance na yo</string>
+    <string name="onboarding_theme_subtitle">Bíló bínɛ biyá na bonkóko ya Kôngɔ</string>
+    <string name="onboarding_theme_finish">Kobáti l\'expérience</string>
+    <string name="onboarding_theme_rumba">Ngúya na bolingo ya rumba</string>
+    <string name="onboarding_theme_savane">Mɔtó ya nsúmba ya mabúmá</string>
+    <string name="onboarding_theme_fleuve">Bonzángá ya ebale Congo</string>
+    <string name="onboarding_theme_foret">Mabúmá ma mbúla ya zámba</string>
+</resources>

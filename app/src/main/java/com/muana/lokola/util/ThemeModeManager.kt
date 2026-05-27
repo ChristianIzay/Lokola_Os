@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.themeModeDataStore by preferencesDataStore(name = "theme_mode_prefs")
@@ -48,7 +49,7 @@ class ThemeModeManager(private val context: Context) {
 
     // Méthode utilitaire pour déterminer si on doit utiliser le mode sombre
     suspend fun isDarkMode(): Boolean {
-        val mode = themeMode.value()
+        val mode = themeMode.first()
         return when (mode) {
             ThemeMode.LIGHT -> false
             ThemeMode.DARK -> true
@@ -60,11 +61,4 @@ class ThemeModeManager(private val context: Context) {
             }
         }
     }
-}
-
-// Fonction utilitaire pour convertir Flow en valeur
-suspend fun <T> kotlinx.coroutines.flow.Flow<T>.value(): T {
-    var result: T? = null
-    collect { result = it }
-    return result!!
 }

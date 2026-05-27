@@ -1,5 +1,7 @@
 package com.muana.lokola.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -105,7 +107,8 @@ val ForetThemeColors = ThemeColors(
  * Adapte automatiquement selon le mode sombre/clair
  */
 @Composable
-fun getThemeColors(theme: CongoTheme, isDarkMode: Boolean = androidx.compose.foundation.isSystemInDarkTheme()): ThemeColors {
+fun getThemeColors(theme: CongoTheme): ThemeColors {
+    val isDarkMode = isSystemInDarkTheme()
     val baseColors = when (theme) {
         CongoTheme.RUMBA -> if (isDarkMode) RumbaThemeColorsDark else RumbaThemeColors
         CongoTheme.SAVANE -> if (isDarkMode) SavaneThemeColorsDark else SavaneThemeColors

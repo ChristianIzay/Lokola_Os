@@ -10,10 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.muana.lokola.ui.theme.ThemeColors
+import com.muana.lokola.R
+import com.muana.lokola.ui.theme.*
 
 /**
  * Widget Rumba Congolaise - Inspiré du patrimoine UNESCO
@@ -22,6 +24,7 @@ import com.muana.lokola.ui.theme.ThemeColors
 @Composable
 fun RumbaWidget(
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     modifier: Modifier = Modifier
 ) {
     var currentSongIndex by remember { mutableStateOf(0) }
@@ -52,7 +55,8 @@ fun RumbaWidget(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(140.dp),
+            .height(140.dp)
+            .rumbaGroove(),   // Animation rythmique rumba (Lokola Heritage Design System)
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColors.surface
@@ -87,9 +91,8 @@ fun RumbaWidget(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Rumba Congolaise",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            text = stringResource(R.string.widget_rumba_title),
+                            style = CongoTypography.KubaHeadline,
                             color = themeColors.textPrimary
                         )
                     }
@@ -98,7 +101,7 @@ fun RumbaWidget(
                         containerColor = themeColors.secondary,
                         contentColor = themeColors.textPrimary
                     ) {
-                        Text("UNESCO", fontSize = 10.sp)
+                        Text(stringResource(R.string.widget_rumba_badge), fontSize = 10.sp)
                     }
                 }
                 

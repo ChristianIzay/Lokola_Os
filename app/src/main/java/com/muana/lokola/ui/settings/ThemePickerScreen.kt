@@ -11,17 +11,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.muana.lokola.R
 import com.muana.lokola.ui.theme.CongoTheme
+import com.muana.lokola.ui.theme.CongoTypography
 import com.muana.lokola.ui.theme.ThemeColors
 import com.muana.lokola.ui.theme.getThemeColors
+import com.muana.lokola.ui.theme.kubaPulse
 import com.muana.lokola.util.ThemeManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun ThemePickerScreen(
@@ -29,18 +34,27 @@ fun ThemePickerScreen(
     onBackClick: () -> Unit
 ) {
     val currentTheme by themeManager.currentTheme.collectAsState(initial = CongoTheme.FLEUVE)
+    val scope = rememberCoroutineScope()
+    
+    val themeColors = getThemeColors(currentTheme)
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Thème Culturel") },
+                title = { Text(stringResource(R.string.theme_picker_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Text("←", fontSize = 24.sp)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = themeColors.primary,
+                    titleContentColor = themeColors.textPrimary,
+                    navigationIconContentColor = themeColors.textPrimary
+                )
             )
-        }
+        },
+        containerColor = themeColors.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -51,16 +65,16 @@ fun ThemePickerScreen(
         ) {
             item {
                 Text(
-                    text = "Choisissez l'ambiance de Lokola OS",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    text = stringResource(R.string.theme_picker_subtitle),
+                    style = CongoTypography.KubaHeadline,
+                    color = themeColors.textPrimary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
                 Text(
-                    text = "Chaque thème est inspiré de la richesse culturelle congolaise",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    text = stringResource(R.string.theme_picker_description),
+                    style = CongoTypography.RumbaBodyLarge,
+                    color = themeColors.textSecondary
                 )
             }
             
@@ -69,8 +83,9 @@ fun ThemePickerScreen(
                     theme = theme,
                     isSelected = theme == currentTheme,
                     onClick = {
-                        // Dans un vrai environnement, on utiliserait coroutineScope
-                        // Pour l'instant, c'est juste visuel
+                        scope.launch {
+                            themeManager.setTheme(theme)
+                        }
                     }
                 )
             }
@@ -94,7 +109,8 @@ fun ThemeCard(
                 width = if (isSelected) 3.dp else 1.dp,
                 color = if (isSelected) colors.primary else MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(16.dp)
-            ),
+            )
+            .kubaPulse(),   // Animation culturelle (Lokola Heritage)
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -118,8 +134,7 @@ fun ThemeCard(
             ) {
                 Text(
                     text = "${theme.icon} ${theme.displayName}",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = CongoTypography.KubaHeadline,
                     color = colors.textPrimary
                 )
             }
@@ -134,14 +149,14 @@ fun ThemeCard(
                 Column {
                     Text(
                         text = theme.displayName,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
+                        style = CongoTypography.RumbaBody,
+                        color = colors.textPrimary
                     )
                     
                     Text(
                         text = getDescriptionForTheme(theme),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        style = CongoTypography.NdomboloLabel,
+                        color = colors.textSecondary
                     )
                 }
                 
@@ -150,7 +165,7 @@ fun ThemeCard(
                         containerColor = colors.primary,
                         contentColor = colors.textPrimary
                     ) {
-                        Text("Actif")
+                        Text(stringResource(R.string.theme_active))
                     }
                 }
             }
@@ -158,11 +173,12 @@ fun ThemeCard(
     }
 }
 
+@Composable
 fun getDescriptionForTheme(theme: CongoTheme): String {
     return when (theme) {
-        CongoTheme.RUMBA -> "Énergie et passion de la rumba congolaise"
-        CongoTheme.SAVANE -> "Chaleurs dorées des paysages congolais"
-        CongoTheme.FLEUVE -> "Majesté du fleuve Congo"
-        CongoTheme.FORET -> "Verdure luxuriante de la forêt tropicale"
+        CongoTheme.RUMBA -> stringResource(R.string.theme_rumba_desc)
+        CongoTheme.SAVANE -> stringResource(R.string.theme_savane_desc)
+        CongoTheme.FLEUVE -> stringResource(R.string.theme_fleuve_desc)
+        CongoTheme.FORET -> stringResource(R.string.theme_foret_desc)
     }
 }

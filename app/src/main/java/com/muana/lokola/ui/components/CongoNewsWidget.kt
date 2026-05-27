@@ -13,19 +13,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.muana.lokola.ui.theme.ThemeColors
+import com.muana.lokola.R
+import com.muana.lokola.ui.theme.*
+import com.muana.lokola.ui.theme.CongoTypography
+
 
 /**
  * Données d'actualités RDC (simulées - à remplacer par une API réelle)
  */
 data class NewsItem(
-    val title: String,
+    val titleFr: String,
+    val titleLing: String,
     val source: String,
-    val category: String,
+    val categoryFr: String,
+    val categoryLing: String,
     val url: String,
     val timeAgo: String
 )
@@ -36,6 +42,7 @@ data class NewsItem(
 @Composable
 fun CongoNewsWidget(
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -44,30 +51,38 @@ fun CongoNewsWidget(
     val newsItems = remember {
         listOf(
             NewsItem(
-                title = "Kinshasa : Nouveau projet d'infrastructure sur le boulevard du 30 Juin",
+                titleFr = "Kinshasa : Nouveau projet d'infrastructure sur le boulevard du 30 Juin",
+                titleLing = "Kinshasa : Mosálá ya bopɛngi na boulevard du 30 Juin",
                 source = "Radio Okapi",
-                category = "Économie",
+                categoryFr = "Économie",
+                categoryLing = "Ekonomí",
                 url = "https://www.radiookapi.net",
                 timeAgo = "2h"
             ),
             NewsItem(
-                title = "Culture : Festival de rumba congolaise annoncé pour décembre",
+                titleFr = "Culture : Festival de rumba congolaise annoncé pour décembre",
+                titleLing = "Bonkóko : Fɛstiváli ya rumba ya Kôngɔ ebímí na décembre",
                 source = "Actualite.cd",
-                category = "Culture",
+                categoryFr = "Culture",
+                categoryLing = "Bonkóko",
                 url = "https://www.actualite.cd",
                 timeAgo = "4h"
             ),
             NewsItem(
-                title = "Sport : Les Léopards se préparent pour les qualifications",
+                titleFr = "Sport : Les Léopards se préparent pour les qualifications",
+                titleLing = "Lisano : Bálɛpárdí bazali kobáti mpo na kɛsí",
                 source = "Digital Congo",
-                category = "Sport",
+                categoryFr = "Sport",
+                categoryLing = "Lisano",
                 url = "https://www.digitalcongo.net",
                 timeAgo = "6h"
             ),
             NewsItem(
-                title = "Éducation : Réouverture des universités prévue la semaine prochaine",
+                titleFr = "Éducation : Réouverture des universités prévue la semaine prochaine",
+                titleLing = "Boyébi : Kofúngola banté ya bapósɔ ebímí mpó ya mpɔ́sɔ",
                 source = "ACP",
-                category = "Éducation",
+                categoryFr = "Éducation",
+                categoryLing = "Boyébi",
                 url = "https://www.acpcongo.com",
                 timeAgo = "8h"
             )
@@ -75,7 +90,9 @@ fun CongoNewsWidget(
     }
     
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .riverFlow(),   // Mouvement fluide style Fleuve (Lokola Heritage)
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColors.surface
@@ -107,15 +124,14 @@ fun CongoNewsWidget(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Actualités RDC",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = stringResource(R.string.widget_news_title),
+                        style = CongoTypography.KubaHeadline,
                         color = themeColors.textPrimary
                     )
                 }
                 
                 TextButton(onClick = {}) {
-                    Text("Voir tout", fontSize = 12.sp)
+                    Text(stringResource(R.string.widget_news_see_all), fontSize = 12.sp)
                 }
             }
             
@@ -129,12 +145,9 @@ fun CongoNewsWidget(
                     NewsCard(
                         news = news,
                         themeColors = themeColors,
+                        currentLanguage = currentLanguage,
                         onClick = {
-                            try {
-                                uriHandler.openUri(news.url)
-                            } catch (e: Exception) {
-                                // Gérer l'erreur silencieusement
-                            }
+                            uriHandler.openUri(news.url)
                         }
                     )
                 }
@@ -147,6 +160,7 @@ fun CongoNewsWidget(
 fun NewsCard(
     news: NewsItem,
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     onClick: () -> Unit
 ) {
     Card(
@@ -170,7 +184,7 @@ fun NewsCard(
                     containerColor = themeColors.primary.copy(alpha = 0.2f),
                     contentColor = themeColors.primary
                 ) {
-                    Text(news.category, fontSize = 10.sp)
+                    Text(if (currentLanguage == "ling") news.categoryLing else news.categoryFr, fontSize = 10.sp)
                 }
                 
                 Text(
@@ -184,7 +198,7 @@ fun NewsCard(
             
             // Titre
             Text(
-                text = news.title,
+                text = if (currentLanguage == "ling") news.titleLing else news.titleFr,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = themeColors.textPrimary,

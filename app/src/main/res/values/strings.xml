@@ -68,4 +68,94 @@
     <string name="common_close">Fermer</string>
     <string name="common_settings">Paramètres</string>
     <string name="common_back">Retour</string>
+
+    <!-- Launcher (for language switching) -->
+    <string name="launcher_cultural_content">Contenu culturel &amp; actualités</string>
+    <string name="launcher_applications_title">Applications</string>
+    <string name="launcher_applications_count">%1$d applications installées</string>
+    <string name="launcher_page3_title">Page 3</string>
+    <string name="launcher_page3_description">Espace disponible pour ajouter des widgets ou des raccourcis personnalisés</string>
+    <string name="launcher_settings">Paramètres</string>
+    <string name="launcher_header_greeting">Mbote! 🇨🇩</string>
+    <string name="launcher_header_subtitle">Boyeyi Bolamu na LokolaOS</string>
+
+    <!-- Launcher Dock -->
+    <string name="dock_phone">Téléphone</string>
+    <string name="dock_messages">Messages</string>
+    <string name="dock_internet">Internet</string>
+    <string name="dock_photo">Photo</string>
+
+    <!-- Launcher Settings Sheet -->
+    <string name="settings_sheet_widgets">Widgets</string>
+    <string name="settings_sheet_language">Langue</string>
+    <string name="settings_sheet_data_saver">Data Saver</string>
+    <string name="settings_sheet_button_position">Position du bouton Paramètres</string>
+
+    <!-- Cultural Widgets -->
+    <string name="widget_rumba_title">Rumba Congolaise</string>
+    <string name="widget_rumba_badge">UNESCO</string>
+
+    <string name="widget_proverb_title">Proverbe du Jour</string>
+    <string name="widget_proverb_translation">Traduction française</string>
+    <string name="widget_proverb_meaning">📖 Signification</string>
+
+    <string name="widget_news_title">Actualités RDC</string>
+    <string name="widget_news_see_all">Voir tout</string>
+
+    <string name="widget_calendar_title">Calendrier Culturel</string>
+
+    <string name="widget_weather_title">Météo RDC</string>
+    <string name="widget_weather_humidity">Humidité</string>
+    <string name="widget_weather_wind">Vent</string>
+
+    <!-- Weather conditions -->
+    <string name="weather_sunny">Ensoleillé</string>
+    <string name="weather_cloudy">Nuageux</string>
+    <string name="weather_rain">Pluie</string>
+    <string name="weather_storm">Orage</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_personalization">Personnalisation</string>
+    <string name="settings_wallpaper">Fond d\'écran</string>
+    <string name="settings_wallpaper_desc">Changer l\'arrière-plan du launcher</string>
+    <string name="settings_theme_cultural">Thème Culturel</string>
+    <string name="settings_theme_desc">Rumba, Savane, Fleuve ou Forêt</string>
+    <string name="settings_appearance">Apparence</string>
+    <string name="settings_version_desc">1.0.0</string>
+    <string name="settings_footer">Lokola OS - Fierté Congolaise</string>
+
+    <!-- Theme Picker -->
+    <string name="theme_picker_title">Thème Culturel</string>
+    <string name="theme_picker_subtitle">Choisissez l\'ambiance de Lokola OS</string>
+    <string name="theme_picker_description">Chaque thème est inspiré de la richesse culturelle congolaise</string>
+    <string name="theme_active">Actif</string>
+
+    <string name="theme_rumba_desc">Énergie et passion de la rumba congolaise</string>
+    <string name="theme_savane_desc">Chaleurs dorées des paysages congolais</string>
+    <string name="theme_fleuve_desc">Majesté du fleuve Congo</string>
+    <string name="theme_foret_desc">Verdure luxuriante de la forêt tropicale</string>
+
+    <!-- Wallpaper Picker -->
+    <string name="wallpaper_picker_title">Choisir un fond d\'écran</string>
+
+    <!-- Theme Mode -->
+    <string name="theme_mode_title">Mode d\'affichage</string>
+    <string name="theme_mode_subtitle">Choisissez comment Lokola OS s\'adapte à votre environnement</string>
+    <string name="theme_mode_light">Mode Clair</string>
+    <string name="theme_mode_light_desc">Toujours utiliser le thème clair</string>
+    <string name="theme_mode_dark">Mode Sombre</string>
+    <string name="theme_mode_dark_desc">Toujours utiliser le thème sombre</string>
+    <string name="theme_mode_system">Système</string>
+    <string name="theme_mode_system_desc">Suivre les paramètres du téléphone</string>
+
+    <!-- Onboarding additional strings -->
+    <string name="onboarding_welcome_philosophy_title">Un smartphone à ton image</string>
+    <string name="onboarding_welcome_philosophy_subtitle">Enraciné dans ta culture congolaise</string>
+    <string name="onboarding_theme_title">Choisissez votre ambiance</string>
+    <string name="onboarding_theme_subtitle">Chaque thème est inspiré de la richesse culturelle congolaise</string>
+    <string name="onboarding_theme_finish">Commencer l\'expérience</string>
+    <string name="onboarding_theme_rumba">Énergie et passion de la rumba</string>
+    <string name="onboarding_theme_savane">Chaleurs dorées des paysages</string>
+    <string name="onboarding_theme_fleuve">Majesté du fleuve Congo</string>
+    <string name="onboarding_theme_foret">Verdure luxuriante de la forêt</string>
 </resources>

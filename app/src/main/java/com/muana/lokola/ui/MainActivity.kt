@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.muana.lokola.ui.navigation.LokolaNavHost
 import com.muana.lokola.ui.theme.LokolaOSTheme
@@ -23,7 +24,10 @@ class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
+        // Edge-to-edge : le launcher remplit tout l'écran (derrière la status bar)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         // Le Splash Screen ne s'affiche qu'au premier lancement de l'activité principale
         // Il ne doit PAS s'afficher lors des retours en arrière dans la navigation
         setContent {

@@ -54,7 +54,6 @@ fun LokolaNavHost(
 
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
-                themeManager = viewModel.themeManager,
                 onComplete = {
                     viewModel.completeOnboarding()
                     val destination = if (viewModel.isDefaultLauncher.value) {
@@ -65,6 +64,12 @@ fun LokolaNavHost(
                     navController.navigate(destination) {
                         popUpTo(Screen.Onboarding.route) { inclusive = true }
                     }
+                },
+                onLanguageSelected = { language ->
+                    viewModel.changeLanguage(language)
+                },
+                onThemeSelected = { theme ->
+                    viewModel.setOnboardingTheme(theme)
                 }
             )
         }
@@ -93,6 +98,7 @@ fun LokolaNavHost(
                 onDataSaverToggle = viewModel::toggleDataSaver,
                 onMayebiClick = { navController.navigate(Screen.Mayebi.route) },
                 onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                onThemeClick = { navController.navigate(Screen.ThemePicker.route) },
                 currentLanguage = currentLanguage,
                 onLanguageChange = { newLanguage ->
                     viewModel.changeLanguage(newLanguage)

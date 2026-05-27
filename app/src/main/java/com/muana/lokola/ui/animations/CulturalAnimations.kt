@@ -13,10 +13,28 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
+import com.muana.lokola.ui.theme.kubaPulse
+import com.muana.lokola.ui.theme.maskReveal
+import com.muana.lokola.ui.theme.riverFlow
 
 /**
- * Animations fluides inspirées des mouvements de danse congolaise
- * Rumba et Ndombolo caractérisées par des transitions douces et rythmiques
+ * === LEGACY / ADVANCED CULTURAL ANIMATIONS ===
+ *
+ * Most common cultural animations have been moved to the centralized
+ * **Lokola Heritage Design System** (CongoDesignSystem.kt):
+ *
+ *  - kubaPulse()
+ *  - rumbaGroove()
+ *  - riverFlow()
+ *  - maskReveal()
+ *  - ndomboloBounce()
+ *
+ * This file now contains:
+ *  - More complex / specialized animations (particles, shimmer, rotation, forest grow...)
+ *  - Page transition helpers
+ *  - Deprecated wrappers for backward compatibility
+ *
+ * Prefer using the Design System versions whenever possible.
  */
 
 /**
@@ -37,86 +55,46 @@ fun rumbaOffsetTransition(): FiniteAnimationSpec<IntOffset> = tween(
     easing = FastOutSlowInEasing
 )
 
-/**
- * Animation de rebond rythmique - Inspirée du ndombolo
- * Mouvement énergique avec rebond
- */
+@Deprecated(
+    message = "Use the Modifier version ndomboloBounce(pressed) from CongoDesignSystem instead",
+    replaceWith = ReplaceWith("ndomboloBounce(pressed)", "com.muana.lokola.ui.theme.CongoDesignSystem")
+)
 fun ndomboloBounce(): FiniteAnimationSpec<Float> = spring(
     dampingRatio = Spring.DampingRatioMediumBouncy,
     stiffness = Spring.StiffnessLow
 )
 
-/**
- * Modifier pour animation d'entrée fluide (rumba style)
- */
+@Deprecated(
+    message = "Use maskReveal() or rumbaGroove() from CongoDesignSystem instead",
+    replaceWith = ReplaceWith("maskReveal(visible)", "com.muana.lokola.ui.theme.CongoDesignSystem")
+)
 @Composable
 fun Modifier.rumbaEnterAnimation(
     visible: Boolean,
     initialScale: Float = 0.8f,
     targetScale: Float = 1f
-): Modifier {
-    val scale by animateFloatAsState(
-        targetValue = if (visible) targetScale else initialScale,
-        animationSpec = rumbaTransition(),
-        label = "rumba_scale"
-    )
-    
-    val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = rumbaTransition(),
-        label = "rumba_alpha"
-    )
-    
-    return this
-        .scale(scale)
-        .alpha(alpha)
-}
+): Modifier = this.maskReveal(visible) // fallback to new system
 
-/**
- * Modifier pour animation de pulsation continue (rythme rumba)
- */
+@Deprecated(
+    message = "Use kubaPulse() or rumbaGroove() from CongoDesignSystem (Lokola Heritage) instead",
+    replaceWith = ReplaceWith("kubaPulse()", "com.muana.lokola.ui.theme.CongoDesignSystem")
+)
 @Composable
 fun Modifier.rumbaPulse(
     initialValue: Float = 0.95f,
     targetValue: Float = 1.05f,
     durationMillis: Int = 2000
-): Modifier {
-    val infiniteTransition = rememberInfiniteTransition(label = "rumba_pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = initialValue,
-        targetValue = targetValue,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse_scale"
-    )
-    
-    return this.scale(scale)
-}
+): Modifier = this.kubaPulse() // redirects to new Design System version
 
-/**
- * Modifier pour animation de vague (thème Fleuve)
- * Effet ondulant continu
- */
+@Deprecated(
+    message = "Use riverFlow() from CongoDesignSystem instead (Lokola Heritage)",
+    replaceWith = ReplaceWith("riverFlow()", "com.muana.lokola.ui.theme.CongoDesignSystem")
+)
 @Composable
 fun Modifier.waveAnimation(
     amplitude: Float = 10f,
     period: Int = 3000
-): Modifier {
-    val infiniteTransition = rememberInfiniteTransition(label = "wave")
-    val offsetY by infiniteTransition.animateFloat(
-        initialValue = -amplitude,
-        targetValue = amplitude,
-        animationSpec = infiniteRepeatable(
-            animation = tween(period, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "wave_offset"
-    )
-    
-    return this.graphicsLayer(translationY = offsetY)
-}
+): Modifier = this.riverFlow()
 
 /**
  * Modifier pour particules dorées flottantes (thème Savane)

@@ -46,7 +46,8 @@ class WallpaperManager @Inject constructor(@ApplicationContext private val conte
             R.raw.wallpaper_08,
             R.raw.wallpaper_09,
             R.raw.wallpaper_10,
-            R.raw.wallpaper_11
+            R.raw.wallpaper_11,
+            R.raw.wallpaper_12  // WOTEC Logo
         )
     }
 }

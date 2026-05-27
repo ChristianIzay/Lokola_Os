@@ -10,11 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.muana.lokola.ui.theme.ThemeColors
+import com.muana.lokola.R
+import com.muana.lokola.ui.theme.*
 import java.time.LocalDate
 
 /**
@@ -23,6 +25,7 @@ import java.time.LocalDate
 @Composable
 fun ProverbWidget(
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     modifier: Modifier = Modifier
 ) {
     // Collection de proverbes congolais authentiques
@@ -31,37 +34,44 @@ fun ProverbWidget(
             ProverbItem(
                 lingala = "Motema moko ekokaka te na nzela mibale",
                 french = "Un cœur ne peut pas suivre deux chemins",
-                meaning = "Il faut choisir une direction et s'y tenir"
+                meaningFr = "Il faut choisir une direction et s'y tenir",
+                meaningLing = "Esengeli kopɔní nzela mɔ́kɔ́ mpe kobómbá yango"
             ),
             ProverbItem(
                 lingala = "Nzoka ezalaka te kaka na mbisi",
                 french = "L'écaille n'est pas seulement chez le poisson",
-                meaning = "Chacun a ses défauts et qualités"
+                meaningFr = "Chacun a ses défauts et qualités",
+                meaningLing = "Moto nyɔ́nsɔ azali na mabé mpe malámu na yé"
             ),
             ProverbItem(
                 lingala = "Mwana ya mobali akolaka na libanda",
                 french = "L'enfant d'un homme grandit à l'extérieur",
-                meaning = "L'éducation vient aussi de la communauté"
+                meaningFr = "L'éducation vient aussi de la communauté",
+                meaningLing = "Boyébi bwa mwana ezali mpe na lisungi ya mbóka"
             ),
             ProverbItem(
                 lingala = "Bato bakufaka kaka na molimo",
                 french = "Les gens meurent seulement dans l'esprit",
-                meaning = "La mémoire garde les défunts vivants"
+                meaningFr = "La mémoire garde les défunts vivants",
+                meaningLing = "Boyébi ya bato bakúfí ezali kobámbá bango na molílí"
             ),
             ProverbItem(
                 lingala = "Soki osengeli kokoma, kotuna motuna",
                 french = "Si tu dois écrire, pose une question",
-                meaning = "La curiosité mène à la connaissance"
+                meaningFr = "La curiosité mène à la connaissance",
+                meaningLing = "Kopɛ́ngi esáli na koyébi"
             ),
             ProverbItem(
                 lingala = "Likambo ya kokamwa ezali te",
                 french = "Il n'y a rien d'impossible",
-                meaning = "Avec la volonté, tout est possible"
+                meaningFr = "Avec la volonté, tout est possible",
+                meaningLing = "Na bolingó, nɔ́nsɔ ezali na nzela"
             ),
             ProverbItem(
                 lingala = "Mbula ikunza, mvula ikunza",
                 french = "La pluie tombe, l'eau coule",
-                meaning = "Les choses suivent leur cours naturel"
+                meaningFr = "Les choses suivent leur cours naturel",
+                meaningLing = "Makambo mazali kobɛ́ngá na ndéngé na yango"
             )
         )
     }
@@ -84,7 +94,9 @@ fun ProverbWidget(
     )
     
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .kubaPulse(),   // Pulsation géométrique Kuba (Lokola Heritage)
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColors.surface
@@ -117,9 +129,8 @@ fun ProverbWidget(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Proverbe du Jour",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = stringResource(R.string.widget_proverb_title),
+                        style = CongoTypography.KubaHeadline,
                         color = themeColors.textPrimary
                     )
                 }
@@ -134,7 +145,7 @@ fun ProverbWidget(
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 
-                // Traduction française
+                // Traduction / Bolandi (selon la langue)
                 Text(
                     text = todayProverb.french,
                     fontSize = 14.sp,
@@ -144,7 +155,10 @@ fun ProverbWidget(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
-                // Signification
+                // Signification (bilingue avancée)
+                val meaningToShow = if (currentLanguage == "ling" && todayProverb.meaningLing.isNotEmpty()) 
+                    todayProverb.meaningLing else todayProverb.meaningFr
+                
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -153,7 +167,7 @@ fun ProverbWidget(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = "📖 ${todayProverb.meaning}",
+                        text = "${stringResource(R.string.widget_proverb_meaning)} $meaningToShow",
                         fontSize = 12.sp,
                         color = themeColors.textSecondary,
                         textAlign = TextAlign.Center,
@@ -168,5 +182,6 @@ fun ProverbWidget(
 data class ProverbItem(
     val lingala: String,
     val french: String,
-    val meaning: String
+    val meaningFr: String,
+    val meaningLing: String = ""
 )

@@ -24,11 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.muana.lokola.R
 import com.muana.lokola.util.WallpaperManager
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WallpaperPickerScreen(
     wallpaperManager: WallpaperManager,
@@ -41,10 +42,10 @@ fun WallpaperPickerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Choisir un fond d'écran") },
+                title = { Text(stringResource(R.string.wallpaper_picker_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )

@@ -9,10 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.muana.lokola.ui.theme.ThemeColors
+import com.muana.lokola.R
+import com.muana.lokola.ui.theme.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -40,6 +42,7 @@ enum class EventType {
 @Composable
 fun CulturalCalendarWidget(
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     modifier: Modifier = Modifier
 ) {
     val currentDate = remember { LocalDate.now() }
@@ -80,7 +83,9 @@ fun CulturalCalendarWidget(
     }
     
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .kubaPulse(),   // Pulsation géométrique (Lokola Heritage)
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColors.surface
@@ -113,7 +118,8 @@ fun CulturalCalendarWidget(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = "Calendrier Culturel",
+                            text = stringResource(R.string.widget_calendar_title),
+                            style = CongoTypography.KubaHeadline,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = themeColors.textPrimary

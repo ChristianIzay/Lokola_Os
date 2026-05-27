@@ -1,6 +1,8 @@
 package com.muana.lokola.viewmodel
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.muana.lokola.util.DataSaverManager
@@ -83,6 +85,18 @@ class MainViewModel @Inject constructor(
     fun changeLanguage(language: String) {
         viewModelScope.launch {
             languageManager.setLanguage(language)
+
+            // Applique le changement de langue "pour de vrai" (locale de l'app)
+            val localeTag = if (language == "ling") "lin" else "fr"
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(localeTag)
+            )
+        }
+    }
+
+    fun setOnboardingTheme(theme: com.muana.lokola.ui.theme.CongoTheme) {
+        viewModelScope.launch {
+            themeManager.setTheme(theme)
         }
     }
 

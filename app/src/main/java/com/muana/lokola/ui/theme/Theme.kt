@@ -47,15 +47,9 @@ fun LokolaOSTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Mode sombre : status bar transparente avec icônes claires
-            // Mode clair : status bar avec couleur primaire et icônes sombres
-            if (isDarkTheme) {
-                window.statusBarColor = android.graphics.Color.TRANSPARENT
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-            } else {
-                window.statusBarColor = colorScheme.primary.toArgb()
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-            }
+            // Toujours transparente pour un launcher immersif (edge-to-edge)
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkTheme
         }
     }
 

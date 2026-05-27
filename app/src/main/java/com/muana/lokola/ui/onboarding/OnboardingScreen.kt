@@ -1,7 +1,6 @@
 package com.muana.lokola.ui.onboarding
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,7 +9,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,23 +24,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.muana.lokola.R
-import com.muana.lokola.ui.theme.CongoTheme
-import com.muana.lokola.ui.theme.getThemeColors
+import com.muana.lokola.ui.theme.*
 import kotlinx.coroutines.launch
-
-@OptIn(ExperimentalFoundationApi::class)
-
 
 @Composable
 fun OnboardingScreen(
     onComplete: () -> Unit,
-    themeManager: com.muana.lokola.util.ThemeManager? = null
+    onLanguageSelected: (String) -> Unit = {},
+    onThemeSelected: (com.muana.lokola.ui.theme.CongoTheme) -> Unit = {}
 ) {
     val pagerState = rememberPagerState(pageCount = { 4 })
     val scope = rememberCoroutineScope()
@@ -52,17 +54,17 @@ fun OnboardingScreen(
             when (page) {
                 0 -> OnboardingPage1()
                 1 -> OnboardingPage2()
-                2 -> OnboardingPage3(onComplete = onComplete)
+                2 -> OnboardingPage3(
+                    onComplete = onComplete,
+                    onLanguageSelected = onLanguageSelected
+                )
                 3 -> ThemeSelectionPage(
                     selectedTheme = selectedTheme,
-                    onThemeSelected = { selectedTheme = it },
+                    onThemeSelected = { 
+                        selectedTheme = it
+                        onThemeSelected(it)   // Save immediately via ViewModel
+                    },
                     onFinish = {
-                        // Sauvegarder le thème si themeManager est disponible
-                        if (themeManager != null) {
-                            scope.launch {
-                                themeManager.setTheme(selectedTheme)
-                            }
-                        }
                         onComplete()
                     }
                 )
@@ -131,20 +133,27 @@ fun OnboardingPage1() {
         )
 
         Text(
-            text = stringResource(R.string.onboarding_welcome_title),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            text = stringResource(R.string.onboarding_theme_title),
+            style = CongoTypography.KubaHeadline,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Text(
-            text = stringResource(R.string.onboarding_welcome_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
+            text = stringResource(R.string.onboarding_theme_subtitle),
+            style = CongoTypography.RumbaBodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-            modifier = Modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(bottom = 32.dp)
         )
+
+                Text(
+                    text = stringResource(R.string.onboarding_welcome_subtitle),
+                    style = CongoTypography.RumbaBodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
         
         // Message philosophique culturel
         Card(
@@ -159,14 +168,21 @@ fun OnboardingPage1() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Un smartphone à ton image",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = stringResource(R.string.onboarding_welcome_philosophy_title),
+                    style = CongoTypography.RumbaBodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Enraciné dans ta culture congolaise",
+                    text = stringResource(R.string.onboarding_welcome_philosophy_subtitle),
+                    style = CongoTypography.NdomboloLabel,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.onboarding_welcome_philosophy_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -193,15 +209,14 @@ fun OnboardingPage2() {
 
         Text(
             text = stringResource(R.string.onboarding_datasaver_title),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            style = CongoTypography.KubaHeadline,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Text(
             text = stringResource(R.string.onboarding_datasaver_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
+            style = CongoTypography.RumbaBodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
@@ -210,9 +225,22 @@ fun OnboardingPage2() {
 
 @Composable
 fun OnboardingPage3(
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
+    onLanguageSelected: (String) -> Unit = {}
 ) {
     var selectedLanguage by remember { mutableStateOf("fr") }
+
+    // Animation de transition lors du changement de langue (effet "pop" culturel)
+    val frScale by animateFloatAsState(
+        targetValue = if (selectedLanguage == "fr") 1.08f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 300f),
+        label = "frLanguageScale"
+    )
+    val lingScale by animateFloatAsState(
+        targetValue = if (selectedLanguage == "ling") 1.08f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 300f),
+        label = "lingLanguageScale"
+    )
 
     Column(
         modifier = Modifier
@@ -237,7 +265,7 @@ fun OnboardingPage3(
 
         Text(
             text = stringResource(R.string.onboarding_language_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
+            style = CongoTypography.RumbaBodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             modifier = Modifier.padding(bottom = 32.dp)
@@ -247,15 +275,27 @@ fun OnboardingPage3(
         LanguageButton(
             text = stringResource(R.string.onboarding_language_french),
             isSelected = selectedLanguage == "fr",
-            onClick = { selectedLanguage = "fr" },
-            modifier = Modifier.padding(vertical = 8.dp)
+            onClick = { 
+                selectedLanguage = "fr"
+                onLanguageSelected("fr")
+            },
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .scale(frScale)
+                .ndomboloBounce(selectedLanguage == "fr")
         )
 
         LanguageButton(
             text = stringResource(R.string.onboarding_language_lingala),
             isSelected = selectedLanguage == "ling",
-            onClick = { selectedLanguage = "ling" },
-            modifier = Modifier.padding(vertical = 8.dp)
+            onClick = { 
+                selectedLanguage = "ling"
+                onLanguageSelected("ling")
+            },
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .scale(lingScale)
+                .ndomboloBounce(selectedLanguage == "ling")
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -286,7 +326,8 @@ fun LanguageButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(56.dp)
+            .ndomboloBounce(pressed = isSelected),   // Rebond culturel Ndombolo (Design System)
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = if (isSelected)
                 MaterialTheme.colorScheme.primaryContainer
@@ -300,7 +341,7 @@ fun LanguageButton(
     ) {
         Text(
             text = text,
-            fontSize = 16.sp,
+            style = CongoTypography.NdomboloLabel,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
     }
@@ -326,16 +367,15 @@ fun ThemeSelectionPage(
         )
 
         Text(
-            text = "Choisissez votre ambiance",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            text = stringResource(R.string.onboarding_theme_title),
+            style = CongoTypography.KubaHeadline,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Text(
-            text = "Chaque thème est inspiré de la richesse culturelle congolaise",
-            style = MaterialTheme.typography.bodyLarge,
+            text = stringResource(R.string.onboarding_theme_subtitle),
+            style = CongoTypography.RumbaBodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             modifier = Modifier.padding(bottom = 32.dp)
@@ -343,7 +383,7 @@ fun ThemeSelectionPage(
 
         // Options de thèmes
         CongoTheme.values().forEach { theme ->
-            val colors = getThemeColors(theme)
+            val colors = LokolaHeritage.colorsFor(theme)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -354,7 +394,8 @@ fun ThemeSelectionPage(
                         color = if (selectedTheme == theme) colors.primary 
                                 else MaterialTheme.colorScheme.outline,
                         shape = RoundedCornerShape(16.dp)
-                    ),
+                    )
+                    .kubaPulse(),   // Animation culturelle (Design System)
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -366,21 +407,19 @@ fun ThemeSelectionPage(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = theme.icon,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(end = 16.dp)
-                    )
+            Text(
+                text = theme.displayName,
+                style = CongoTypography.RumbaBody
+            )
                     
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = theme.displayName,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            style = CongoTypography.RumbaBody
                         )
                         Text(
                             text = getDescriptionForTheme(theme),
-                            fontSize = 12.sp,
+                            style = CongoTypography.NdomboloLabel,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     }
@@ -407,18 +446,19 @@ fun ThemeSelectionPage(
             )
         ) {
             Text(
-                text = "Commencer l'expérience",
+                text = stringResource(R.string.onboarding_theme_finish),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
     }
 }
 
+@Composable
 fun getDescriptionForTheme(theme: CongoTheme): String {
     return when (theme) {
-        CongoTheme.RUMBA -> "Énergie et passion de la rumba"
-        CongoTheme.SAVANE -> "Chaleurs dorées des paysages"
-        CongoTheme.FLEUVE -> "Majesté du fleuve Congo"
-        CongoTheme.FORET -> "Verdure luxuriante de la forêt"
+        CongoTheme.RUMBA -> stringResource(R.string.onboarding_theme_rumba)
+        CongoTheme.SAVANE -> stringResource(R.string.onboarding_theme_savane)
+        CongoTheme.FLEUVE -> stringResource(R.string.onboarding_theme_fleuve)
+        CongoTheme.FORET -> stringResource(R.string.onboarding_theme_foret)
     }
 }

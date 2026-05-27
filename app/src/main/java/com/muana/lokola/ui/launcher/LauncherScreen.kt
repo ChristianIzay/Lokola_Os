@@ -12,10 +12,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -24,14 +28,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.consumePositionChange
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.muana.lokola.R
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -43,15 +58,15 @@ import com.muana.lokola.ui.components.CulturalCalendarWidget
 import com.muana.lokola.ui.components.ProverbWidget
 import com.muana.lokola.ui.components.CongoWeatherWidget
 import com.muana.lokola.ui.theme.drawCulturalPattern
-import com.muana.lokola.ui.icons.CongoIcons
-import com.muana.lokola.ui.icons.Drum
-import com.muana.lokola.ui.icons.TalkingDrum
-import com.muana.lokola.ui.icons.AfricaGlobe
-import com.muana.lokola.ui.icons.TraditionalMask
+
 import com.muana.lokola.ui.theme.*
+import com.muana.lokola.ui.theme.CongoTypography
 import com.muana.lokola.util.AppLauncher
+import com.muana.lokola.util.SettingsButtonPosition
 import com.muana.lokola.util.ThemeManager
 import com.muana.lokola.util.WallpaperManager
+import com.muana.lokola.util.WidgetPreferencesManager
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -79,6 +94,7 @@ fun LauncherScreen(
     onDataSaverToggle: (Boolean) -> Unit,
     onMayebiClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onThemeClick: () -> Unit = {},
     currentLanguage: String = "fr",
     onLanguageChange: (String) -> Unit = {}
 ) {
@@ -96,13 +112,27 @@ fun LauncherScreen(
     val proverbEnabled by widgetPreferencesManager.isProverbWidgetEnabled.collectAsState(initial = false)
     val weatherEnabled by widgetPreferencesManager.isWeatherWidgetEnabled.collectAsState(initial = false)
     
+    // Position du bouton Paramètres (Phase B)
+    val settingsButtonPosition by widgetPreferencesManager.settingsButtonPosition.collectAsState(initial = SettingsButtonPosition.BOTTOM_RIGHT)
+    
+    // État pour le Bottom Sheet Paramètres (Phase B)
+    var showLauncherSettings by remember { mutableStateOf(false) }
+    
     val currentDate = remember { LocalDate.now() }
     val formattedDate = remember {
         currentDate.format(DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.FRENCH))
     }
+
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    
+    // État pour la position du bouton draggable (persisté)
+    var fabOffsetX by remember { mutableStateOf(0f) }
+    var fabOffsetY by remember { mutableStateOf(0f) }
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp.value
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
     
     Box(modifier = Modifier.fillMaxSize()) {
-        // Background avec pattern culturel ou image
+        // Background avec pattern culturel ou image (derrière tout)
         if (selectedWallpaperId > 0) {
             val wallpapers = wallpaperManager.getAvailableWallpapers()
             val resId = wallpapers.getOrNull(selectedWallpaperId - 1)
@@ -119,66 +149,297 @@ fun LauncherScreen(
                 )
             }
         } else {
-            // Arrière-plan avec pattern culturel
             Canvas(modifier = Modifier.fillMaxSize()) {
-                // Fond de base
                 drawRect(color = themeColors.background)
-                // Pattern culturel par-dessus
                 drawCulturalPattern(size, currentTheme, themeColors)
             }
         }
 
+        // === 3 PAGES AVEC SWIPE ===
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            when (page) {
+                0 -> LauncherPageWidgets(
+                    formattedDate = formattedDate,
+                    themeColors = themeColors,
+                    currentLanguage = currentLanguage,
+                    rumbaEnabled = rumbaEnabled,
+                    newsEnabled = newsEnabled,
+                    calendarEnabled = calendarEnabled,
+                    proverbEnabled = proverbEnabled,
+                    weatherEnabled = weatherEnabled
+                )
+                1 -> LauncherPageApps(
+                    context = context,
+                    installedApps = installedApps,
+                    themeColors = themeColors
+                )
+                2 -> LauncherPageEmpty(themeColors = themeColors)
+            }
+        }
+
+        // === Indicateur moderne (barre + animation fluide) ===
+        PageIndicator(
+            pagerState = pagerState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+        )
+
+        // === DOCK FIXE (toujours visible en bas) ===
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        ) {
+            CongoDockBar(context = context, themeColors = themeColors)
+        }
+
+        // Bouton Paramètres DRAGGABLE
+        DraggableSettingsButton(
+            onClick = { showLauncherSettings = true },
+            themeColors = themeColors,
+            initialOffsetX = fabOffsetX,
+            initialOffsetY = fabOffsetY,
+            onOffsetChange = { x, y ->
+                fabOffsetX = x
+                fabOffsetY = y
+            },
+            screenWidth = screenWidth,
+            screenHeight = screenHeight
+        )
+
+        // Bottom Sheet Paramètres (Phase B)
+        if (showLauncherSettings) {
+            LauncherSettingsSheet(
+                widgetPreferencesManager = widgetPreferencesManager,
+                themeManager = themeManager,
+                themeColors = themeColors,
+                currentLanguage = currentLanguage,
+                onLanguageChange = onLanguageChange,
+                dataSaverEnabled = dataSaverEnabled,
+                onDataSaverToggle = onDataSaverToggle,
+                onThemeClick = onThemeClick,
+                onDismiss = { showLauncherSettings = false }
+            )
+        }
+    }
+}
+
+// ==================== LES 3 PAGES DU LAUNCHER ====================
+
+@Composable
+fun LauncherPageWidgets(
+    formattedDate: String,
+    themeColors: ThemeColors,
+    currentLanguage: String = "fr",
+    rumbaEnabled: Boolean,
+    newsEnabled: Boolean,
+    calendarEnabled: Boolean,
+    proverbEnabled: Boolean,
+    weatherEnabled: Boolean
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 72.dp)   // Espace pour le dock fixe
+    ) {
+        // Header fixe (ne scroll pas)
+        HeaderSection(formattedDate = formattedDate, themeColors = themeColors)
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Sous-titre léger (fixe)
+        Text(
+            text = stringResource(R.string.launcher_cultural_content),
+            fontSize = 13.sp,
+            color = themeColors.textSecondary,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+        )
+
+        // Zone des widgets scrollable
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
         ) {
-            // Header avec date et salutation
-            HeaderSection(formattedDate = formattedDate, themeColors = themeColors)
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Widgets culturels (avec personnalisation)
             CulturalWidgetsSection(
                 themeColors = themeColors,
+                currentLanguage = currentLanguage,
                 rumbaEnabled = rumbaEnabled,
                 newsEnabled = newsEnabled,
                 calendarEnabled = calendarEnabled,
                 proverbEnabled = proverbEnabled,
                 weatherEnabled = weatherEnabled
             )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Grille d'applications
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                items(installedApps) { app ->
-                    InstalledAppIcon(
-                        app = app,
-                        onClick = {
-                            AppLauncher.launchAppFromInfo(context, app)
-                        },
-                        themeColors = themeColors
-                    )
-                }
-            }
-            
-            // Dock fixe en bas avec thème culturel
-            CongoDockBar(context = context, themeColors = themeColors)
+
+            // Espace en bas pour bien respirer après le dernier widget
+            Spacer(modifier = Modifier.height(24.dp))
         }
-        
-        // Language FAB - Bouton flottant pour switch langue
-        LanguageFAB(
-            currentLanguage = currentLanguage,
-            onLanguageChange = onLanguageChange
+    }
+}
+
+@Composable
+fun LauncherPageApps(
+    context: Context,
+    installedApps: List<AppLauncher.AppInfo>,
+    themeColors: ThemeColors
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 72.dp)
+    ) {
+        // Header amélioré pour la page Applications
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.launcher_applications_title),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = themeColors.textPrimary
+            )
+            Text(
+                text = stringResource(R.string.launcher_applications_count, installedApps.size),
+                fontSize = 14.sp,
+                color = themeColors.textSecondary
+            )
+        }
+
+        // Ligne de séparation subtile
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .padding(horizontal = 20.dp)
+                .background(themeColors.textSecondary.copy(alpha = 0.15f))
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            items(installedApps) { app ->
+                InstalledAppIcon(
+                    app = app,
+                    onClick = {
+                        AppLauncher.launchAppFromInfo(context, app)
+                    },
+                    themeColors = themeColors
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LauncherPageEmpty(themeColors: ThemeColors) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 72.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        ) {
+            Text(
+                text = "＋",
+                fontSize = 64.sp,
+                color = themeColors.textSecondary.copy(alpha = 0.6f)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = stringResource(R.string.launcher_page3_title),
+                fontSize = 20.sp,
+                color = themeColors.textPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.launcher_page3_description),
+                fontSize = 14.sp,
+                color = themeColors.textSecondary,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun PageIndicator(
+    pagerState: androidx.compose.foundation.pager.PagerState,
+    modifier: Modifier = Modifier
+) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+
+    val pageCount = 3
+    val pillWidth = 26.dp
+    val pillHeight = 4.dp
+    val spacing = 10.dp
+
+    val currentPage = pagerState.currentPage
+    val offsetFraction = pagerState.currentPageOffsetFraction
+
+    // Position fluide du pill (0.0 → 2.0)
+    val position = currentPage + offsetFraction
+
+    // Calculs en pixels pour l'offset dynamique
+    val pillWidthPx = with(density) { pillWidth.toPx() }
+    val spacingPx = with(density) { spacing.toPx() }
+    val totalWidthPx = (pillWidthPx * pageCount) + (spacingPx * (pageCount - 1))
+
+    // Position X du coin gauche du pill actif (en pixels)
+    val pillOffsetX = position * (pillWidthPx + spacingPx)
+
+    // On centre l'indicateur globalement
+    val centeredOffset = pillOffsetX - (totalWidthPx / 2) + (pillWidthPx / 2)
+
+    Box(
+        modifier = modifier
+            .width(with(density) { totalWidthPx.toDp() })
+            .height(20.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // Piste de fond
+        Box(
+            modifier = Modifier
+                .width(with(density) { totalWidthPx.toDp() })
+                .height(pillHeight)
+                .clip(RoundedCornerShape(50))
+                .background(Color.White.copy(alpha = 0.22f))
+        )
+
+        // Pill animé qui glisse (offset en pixels pour un suivi fluide pendant le swipe)
+        Box(
+            modifier = Modifier
+                .offset { androidx.compose.ui.unit.IntOffset(centeredOffset.toInt(), 0) }
+                .width(pillWidth)
+                .height(pillHeight)
+                .clip(RoundedCornerShape(50))
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.White,
+                            Color.White.copy(alpha = 0.9f)
+                        )
+                    )
+                )
         )
     }
 }
@@ -188,7 +449,10 @@ fun HeaderSection(formattedDate: String, themeColors: ThemeColors) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp)
+            .padding(top = 8.dp)
+            .statusBarsPadding()
+            .rumbaGroove(),   // Animation rythmique inspirée de la rumba (Lokola Heritage)
         colors = CardDefaults.cardColors(
             containerColor = themeColors.primary
         ),
@@ -217,28 +481,25 @@ fun HeaderSection(formattedDate: String, themeColors: ThemeColors) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = formattedDate.capitalize(),
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.9f),
-                        fontWeight = FontWeight.Medium
+                        style = CongoTypography.NdomboloLabel,
+                        color = Color.White.copy(alpha = 0.9f)
                     )
                 }
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = "Mbote! 🇨🇩",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = stringResource(R.string.launcher_header_greeting),
+                    style = CongoTypography.KubaDisplayLarge,
                     color = Color.White
                 )
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "Boyeyi Bolamu na LokolaOS",
-                    fontSize = 14.sp,
-                    color = themeColors.secondary,
-                    fontWeight = FontWeight.Medium
+                    text = stringResource(R.string.launcher_header_subtitle),
+                    style = CongoTypography.RumbaBody,
+                    color = themeColors.secondary
                 )
             }
         }
@@ -381,31 +642,46 @@ fun CongoAppIcon(
 
 @Composable
 fun CongoDockBar(context: Context, themeColors: ThemeColors) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = themeColors.dockBackground,
-        shadowElevation = 8.dp
+    // Dock très transparent (style verre) + fine bordure en haut
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        themeColors.dockBackground.copy(alpha = 0.65f), // Plus transparent
+                        themeColors.dockBackground.copy(alpha = 0.25f)
+                    )
+                )
+            )
     ) {
+        // Fine ligne supérieure pour améliorer la lisibilité
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(themeColors.textPrimary.copy(alpha = 0.12f))
+                .align(Alignment.TopCenter)
+        )
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(vertical = 10.dp, horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Téléphone -> Tambour (Drum)
-            DockItem(CongoIcons.Drum, "Téléphone", themeColors.primary) {
+            // Icônes habituelles (standard Android)
+            DockItem(Icons.Default.Phone, stringResource(R.string.dock_phone), themeColors.primary, themeColors) {
                 AppLauncher.launchDialer(context)
             }
-            // Messages -> Tambour Parlant (TalkingDrum)
-            DockItem(CongoIcons.TalkingDrum, "Messages", themeColors.accent) {
+            DockItem(Icons.Default.Message, stringResource(R.string.dock_messages), themeColors.accent, themeColors) {
                 AppLauncher.launchMessages(context)
             }
-            // Internet -> Globe Africain (AfricaGlobe)
-            DockItem(CongoIcons.AfricaGlobe, "Internet", themeColors.primaryVariant) {
+            DockItem(Icons.Default.Public, stringResource(R.string.dock_internet), themeColors.primaryVariant, themeColors) {
                 AppLauncher.launchBrowser(context)
             }
-            // Photo -> Masque Traditionnel (TraditionalMask)
-            DockItem(CongoIcons.TraditionalMask, "Photo", themeColors.secondary) {
+            DockItem(Icons.Default.PhotoCamera, stringResource(R.string.dock_photo), themeColors.secondary, themeColors) {
                 AppLauncher.launchCamera(context)
             }
         }
@@ -413,7 +689,7 @@ fun CongoDockBar(context: Context, themeColors: ThemeColors) {
 }
 
 @Composable
-fun DockItem(icon: ImageVector, label: String, color: Color, onClick: () -> Unit) {
+fun DockItem(icon: ImageVector, label: String, color: Color, themeColors: ThemeColors, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable(onClick = onClick)
@@ -422,7 +698,8 @@ fun DockItem(icon: ImageVector, label: String, color: Color, onClick: () -> Unit
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(color),
+                .background(color)
+                .kubaPulse(),   // Pulsation géométrique style Kuba (Lokola Heritage)
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -434,9 +711,8 @@ fun DockItem(icon: ImageVector, label: String, color: Color, onClick: () -> Unit
         }
         Text(
             text = label,
-            fontSize = 10.sp,
+            style = CongoTypography.NdomboloLabel,
             color = themeColors.textSecondary,
-            fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(top = 4.dp)
         )
     }
@@ -474,7 +750,6 @@ fun getQuickActions(): List<QuickAction> {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBarSection(onSearch: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
@@ -525,6 +800,7 @@ fun SearchBarSection(onSearch: (String) -> Unit) {
 @Composable
 fun CulturalWidgetsSection(
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     rumbaEnabled: Boolean = true,
     newsEnabled: Boolean = true,
     calendarEnabled: Boolean = true,
@@ -539,27 +815,439 @@ fun CulturalWidgetsSection(
     ) {
         // Widget Rumba UNESCO
         if (rumbaEnabled) {
-            RumbaWidget(themeColors = themeColors)
+            RumbaWidget(themeColors = themeColors, currentLanguage = currentLanguage)
         }
         
         // Widget Actualités RDC
         if (newsEnabled) {
-            CongoNewsWidget(themeColors = themeColors)
+            CongoNewsWidget(themeColors = themeColors, currentLanguage = currentLanguage)
         }
         
         // Widget Calendrier Culturel
         if (calendarEnabled) {
-            CulturalCalendarWidget(themeColors = themeColors)
+            CulturalCalendarWidget(themeColors = themeColors, currentLanguage = currentLanguage)
         }
         
         // Widget Proverbes Congolais
         if (proverbEnabled) {
-            ProverbWidget(themeColors = themeColors)
+            ProverbWidget(themeColors = themeColors, currentLanguage = currentLanguage)
         }
         
         // Widget Météo RDC
         if (weatherEnabled) {
-            CongoWeatherWidget(themeColors = themeColors)
+            CongoWeatherWidget(themeColors = themeColors, currentLanguage = currentLanguage)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LauncherSettingsSheet(
+    widgetPreferencesManager: WidgetPreferencesManager,
+    themeManager: ThemeManager,
+    themeColors: ThemeColors,
+    currentLanguage: String,
+    onLanguageChange: (String) -> Unit,
+    dataSaverEnabled: Boolean,
+    onDataSaverToggle: (Boolean) -> Unit,
+    onThemeClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = themeColors.surface,
+        tonalElevation = 8.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.launcher_settings),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = themeColors.textPrimary
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Fermer",
+                        tint = themeColors.textPrimary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // === Section Widgets ===
+            SectionHeader(
+                icon = Icons.Default.Widgets,
+                title = stringResource(R.string.settings_sheet_widgets),
+                themeColors = themeColors
+            )
+
+            val rumbaEnabled by widgetPreferencesManager.isRumbaWidgetEnabled.collectAsState(initial = true)
+            val newsEnabled by widgetPreferencesManager.isNewsWidgetEnabled.collectAsState(initial = true)
+            val calendarEnabled by widgetPreferencesManager.isCalendarWidgetEnabled.collectAsState(initial = true)
+            val proverbEnabled by widgetPreferencesManager.isProverbWidgetEnabled.collectAsState(initial = false)
+            val weatherEnabled by widgetPreferencesManager.isWeatherWidgetEnabled.collectAsState(initial = false)
+
+            SwitchRow("Rumba Congolaise", rumbaEnabled, themeColors) { scope.launch { widgetPreferencesManager.setRumbaWidgetEnabled(it) } }
+            SwitchRow("Actualités RDC", newsEnabled, themeColors) { scope.launch { widgetPreferencesManager.setNewsWidgetEnabled(it) } }
+            SwitchRow("Calendrier Culturel", calendarEnabled, themeColors) { scope.launch { widgetPreferencesManager.setCalendarWidgetEnabled(it) } }
+            SwitchRow("Proverbes Congolais", proverbEnabled, themeColors) { scope.launch { widgetPreferencesManager.setProverbWidgetEnabled(it) } }
+            SwitchRow("Météo RDC", weatherEnabled, themeColors) { scope.launch { widgetPreferencesManager.setWeatherWidgetEnabled(it) } }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // === Section Langue ===
+            SectionHeader(
+                icon = Icons.Default.Language,
+                title = stringResource(R.string.settings_sheet_language),
+                themeColors = themeColors
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                LanguageButton(stringResource(R.string.onboarding_language_french), currentLanguage == "fr", themeColors) { onLanguageChange("fr") }
+                LanguageButton(stringResource(R.string.onboarding_language_lingala), currentLanguage == "ling", themeColors) { onLanguageChange("ling") }
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // === Section Data Saver ===
+            SectionHeader(
+                icon = Icons.Default.DataUsage,
+                title = stringResource(R.string.settings_sheet_data_saver),
+                themeColors = themeColors
+            )
+
+            SwitchRow("Économiser les données", dataSaverEnabled, themeColors, onDataSaverToggle)
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // === Section Thème Culturel ===
+            SectionHeader(
+                icon = Icons.Default.ColorLens,
+                title = "Thème Culturel",
+                themeColors = themeColors
+            )
+            
+            val currentTheme by themeManager.currentTheme.collectAsState(initial = CongoTheme.FLEUVE)
+            
+            ThemeSelectorItem(
+                currentTheme = currentTheme,
+                themeColors = themeColors,
+                onClick = {
+                    onDismiss()
+                    onThemeClick()
+                }
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    icon: ImageVector,
+    title: String,
+    themeColors: ThemeColors
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 10.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = themeColors.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = title,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = themeColors.primary
+        )
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    label: String,
+    checked: Boolean,
+    themeColors: ThemeColors,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            color = themeColors.textPrimary,
+            fontSize = 14.sp
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = themeColors.primary,
+                uncheckedThumbColor = Color.White,
+                uncheckedTrackColor = themeColors.textSecondary.copy(alpha = 0.35f)
+            )
+        )
+    }
+}
+
+@Composable
+private fun LanguageButton(
+    text: String,
+    selected: Boolean,
+    themeColors: ThemeColors,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) themeColors.primary else themeColors.surface,
+            contentColor = if (selected) Color.White else themeColors.textPrimary
+        ),
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.height(42.dp)
+    ) {
+        Text(text, fontSize = 14.sp)
+    }
+}
+
+@Composable
+private fun PositionSelector(
+    currentPosition: SettingsButtonPosition,
+    onPositionSelected: (SettingsButtonPosition) -> Unit,
+    themeColors: ThemeColors
+) {
+    val positions = listOf(
+        SettingsButtonPosition.TOP_LEFT to "Haut Gauche",
+        SettingsButtonPosition.TOP_RIGHT to "Haut Droite",
+        SettingsButtonPosition.BOTTOM_LEFT to "Bas Gauche",
+        SettingsButtonPosition.BOTTOM_RIGHT to "Bas Droite"
+    )
+
+    Column {
+        positions.chunked(2).forEach { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                row.forEach { (pos, label) ->
+                    PositionPreviewCard(
+                        label = label,
+                        selected = currentPosition == pos,
+                        position = pos,
+                        onClick = { onPositionSelected(pos) },
+                        themeColors = themeColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PositionPreviewCard(
+    label: String,
+    selected: Boolean,
+    position: SettingsButtonPosition,
+    onClick: () -> Unit,
+    themeColors: ThemeColors,
+    modifier: Modifier = Modifier
+) {
+    val borderColor = if (selected) themeColors.primary else themeColors.textSecondary.copy(alpha = 0.3f)
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.clickable { onClick() }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(68.dp)
+                .border(
+                    width = if (selected) 2.dp else 1.dp,
+                    color = borderColor,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .background(themeColors.surface, RoundedCornerShape(8.dp))
+                .padding(4.dp)
+        ) {
+            val dotAlignment = when (position) {
+                SettingsButtonPosition.TOP_LEFT -> Alignment.TopStart
+                SettingsButtonPosition.TOP_RIGHT -> Alignment.TopEnd
+                SettingsButtonPosition.BOTTOM_LEFT -> Alignment.BottomStart
+                SettingsButtonPosition.BOTTOM_RIGHT -> Alignment.BottomEnd
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(14.dp)
+                    .align(dotAlignment)
+                    .background(themeColors.primary, CircleShape)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = if (selected) themeColors.primary else themeColors.textSecondary,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+        )
+    }
+}
+
+// ==================== BOUTON SETTINGS DRAGGABLE ====================
+
+@Composable
+fun DraggableSettingsButton(
+    onClick: () -> Unit,
+    themeColors: ThemeColors,
+    initialOffsetX: Float,
+    initialOffsetY: Float,
+    onOffsetChange: (Float, Float) -> Unit,
+    screenWidth: Float,
+    screenHeight: Float
+) {
+    var offsetX by remember { mutableFloatStateOf(if (initialOffsetX == 0f) screenWidth - 80f else initialOffsetX) }
+    var offsetY by remember { mutableFloatStateOf(if (initialOffsetY == 0f) screenHeight - 160f else initialOffsetY) }
+    var isDragging by remember { mutableStateOf(false) }
+    
+    Box(
+        modifier = Modifier
+            .offset { IntOffset(offsetX.toInt(), offsetY.toInt()) }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        isDragging = true
+                    },
+                    onDragEnd = {
+                        isDragging = false
+                        // Snap to nearest corner
+                        val snapX = if (offsetX > screenWidth / 2) screenWidth - 80f else 20f
+                        val snapY = if (offsetY > screenHeight / 2) screenHeight - 160f else 80f
+                        
+                        offsetX = snapX
+                        offsetY = snapY
+                        onOffsetChange(snapX, snapY)
+                    },
+                    onDragCancel = {
+                        isDragging = false
+                    },
+                    onDrag = { change: androidx.compose.ui.input.pointer.PointerInputChange, dragAmount: androidx.compose.ui.geometry.Offset ->
+                        change.consumePositionChange()
+                        val newX = (offsetX + dragAmount.x).coerceIn(20f, screenWidth - 80f)
+                        val newY = (offsetY + dragAmount.y).coerceIn(80f, screenHeight - 160f)
+                        offsetX = newX
+                        offsetY = newY
+                        onOffsetChange(newX, newY)
+                    }
+                )
+            }
+    ) {
+        FloatingActionButton(
+            onClick = {
+                if (!isDragging) {
+                    onClick()
+                }
+            },
+            modifier = Modifier
+                .size(56.dp),
+            containerColor = themeColors.primary
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Paramètres",
+                tint = themeColors.secondary
+            )
+        }
+    }
+}
+
+// ==================== THEME SELECTOR ITEM ====================
+
+@Composable
+fun ThemeSelectorItem(
+    currentTheme: CongoTheme,
+    themeColors: ThemeColors,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = themeColors.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = currentTheme.icon,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+                Column {
+                    Text(
+                        text = currentTheme.displayName,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = themeColors.textPrimary
+                    )
+                    Text(
+                        text = "Changer le thème",
+                        fontSize = 13.sp,
+                        color = themeColors.textSecondary
+                    )
+                }
+            }
+            
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Sélectionner",
+                tint = themeColors.primary,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

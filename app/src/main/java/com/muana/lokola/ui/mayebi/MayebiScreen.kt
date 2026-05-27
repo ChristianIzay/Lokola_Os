@@ -23,7 +23,6 @@ import com.muana.lokola.R
 import com.muana.lokola.data.model.Lesson
 import com.muana.lokola.data.model.LessonCategory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MayebiScreen(
     onLessonClick: (Int) -> Unit,

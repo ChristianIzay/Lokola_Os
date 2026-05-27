@@ -9,10 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.muana.lokola.ui.theme.ThemeColors
+import com.muana.lokola.R
+import com.muana.lokola.ui.theme.*
 
 /**
  * Widget Météo RDC - Avec paysages congolais emblématiques
@@ -20,6 +22,7 @@ import com.muana.lokola.ui.theme.ThemeColors
 @Composable
 fun CongoWeatherWidget(
     themeColors: ThemeColors,
+    currentLanguage: String = "fr",
     modifier: Modifier = Modifier
 ) {
     // Données météo simulées pour Kinshasa (à remplacer par API réelle)
@@ -27,15 +30,21 @@ fun CongoWeatherWidget(
         WeatherData(
             city = "Kinshasa",
             temperature = 28,
-            condition = "Ensoleillé",
+            conditionFr = "Ensoleillé",
+            conditionLing = "Mɔtó",
             humidity = 65,
             windSpeed = 12,
-            landscape = "Fleuve Congo"
+            landscapeFr = "Fleuve Congo",
+            landscapeLing = "Ebale Congo"
         )
     }
+
+    val currentCondition = if (currentLanguage == "ling") weatherData.conditionLing else weatherData.conditionFr
     
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .riverFlow(),   // Flux fluide style Fleuve (Lokola Heritage)
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColors.surface
@@ -47,16 +56,16 @@ fun CongoWeatherWidget(
                 .height(160.dp)
                 .background(
                     Brush.verticalGradient(
-                        colors = when (weatherData.condition) {
-                            "Ensoleillé" -> listOf(
+                        colors = when (currentCondition) {
+                            "Ensoleillé", "Mɔtó" -> listOf(
                                 themeColors.secondary.copy(alpha = if (themeColors.isDarkTheme) 0.25f else 0.4f),
                                 themeColors.surface
                             )
-                            "Nuageux" -> listOf(
+                            "Nuageux", "Mapú" -> listOf(
                                 themeColors.textSecondary.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f),
                                 themeColors.surface
                             )
-                            "Pluie" -> listOf(
+                            "Pluie", "Mbúla" -> listOf(
                                 themeColors.primary.copy(alpha = if (themeColors.isDarkTheme) 0.2f else 0.3f),
                                 themeColors.surface
                             )
@@ -79,7 +88,7 @@ fun CongoWeatherWidget(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = getWeatherEmoji(weatherData.condition),
+                        text = getWeatherEmoji(if (currentLanguage == "ling") weatherData.conditionLing else weatherData.conditionFr),
                         fontSize = 48.sp
                     )
                     
@@ -93,7 +102,7 @@ fun CongoWeatherWidget(
                     )
                     
                     Text(
-                        text = weatherData.condition,
+                        text = if (currentLanguage == "ling") weatherData.conditionLing else weatherData.conditionFr,
                         fontSize = 14.sp,
                         color = themeColors.textSecondary
                     )
@@ -127,7 +136,7 @@ fun CongoWeatherWidget(
                             horizontalAlignment = Alignment.End
                         ) {
                             Text(
-                                text = "🏞️ ${weatherData.landscape}",
+                                text = "🏞️ ${if (currentLanguage == "ling") weatherData.landscapeLing else weatherData.landscapeFr}",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = themeColors.primary
@@ -139,13 +148,13 @@ fun CongoWeatherWidget(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "💧 ${weatherData.humidity}%",
+                                    text = "💧 ${stringResource(R.string.widget_weather_humidity)} ${weatherData.humidity}%",
                                     fontSize = 11.sp,
                                     color = themeColors.textSecondary
                                 )
                                 
                                 Text(
-                                    text = "💨 ${weatherData.windSpeed} km/h",
+                                    text = "💨 ${stringResource(R.string.widget_weather_wind)} ${weatherData.windSpeed} km/h",
                                     fontSize = 11.sp,
                                     color = themeColors.textSecondary
                                 )
@@ -160,10 +169,11 @@ fun CongoWeatherWidget(
 
 fun getWeatherEmoji(condition: String): String {
     return when (condition) {
-        "Ensoleillé" -> "☀️"
-        "Nuageux" -> "☁️"
-        "Pluie" -> "🌧️"
-        "Orage" -> "⛈️"
+        // French
+        "Ensoleillé", "Mɔtó" -> "☀️"
+        "Nuageux", "Mapú" -> "☁️"
+        "Pluie", "Mbúla" -> "🌧️"
+        "Orage", "Nkúmba" -> "⛈️"
         "Partiellement nuageux" -> "⛅"
         else -> "🌤️"
     }
@@ -172,8 +182,10 @@ fun getWeatherEmoji(condition: String): String {
 data class WeatherData(
     val city: String,
     val temperature: Int,
-    val condition: String,
+    val conditionFr: String,
+    val conditionLing: String,
     val humidity: Int,
     val windSpeed: Int,
-    val landscape: String
+    val landscapeFr: String,
+    val landscapeLing: String
 )

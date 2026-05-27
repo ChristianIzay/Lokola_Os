@@ -249,7 +249,7 @@ val CongoIcons.TraditionalMask: ImageVector
                 stroke = SolidColor(Color(0xFF000000))
             ) {
                 moveTo(9f, 16f)
-                quadraticBezierTo(12f, 18f, 15f, 16f)
+                curveTo(12f, 18f, 12f, 18f, 15f, 16f)
             }
             
             // Motifs décoratifs

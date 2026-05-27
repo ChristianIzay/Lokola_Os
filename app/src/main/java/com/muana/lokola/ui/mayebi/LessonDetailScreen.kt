@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.muana.lokola.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonDetailScreen(
     lessonId: Int,
